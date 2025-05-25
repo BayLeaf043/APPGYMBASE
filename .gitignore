@@ -1,0 +1,17 @@
+# Node.js
+node_modules/
+npm-debug.log
+yarn-error.log
+
+# Expo/React Native
+.expo/
+.expo-shared/
+*.expo
+*.log
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Env
+.env
