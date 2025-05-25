@@ -140,9 +140,9 @@ router.post('/', async (req, res) => {
 
       // Додавання запису у таблицю finances
         await pool.query(
-            `INSERT INTO finances (certificate_id, client_id, price, payment_method, transaction_type, comment, system_id) 
-            VALUES ($1, $2, $3, $4, 'Надходження', $5, $6::uuid)`,
-            [newCertificate.certificate_id, client_id, price, payment_method,  comment, system_id || 'Сертифікат створено']
+            `INSERT INTO finances (certificate_id, price, payment_method, transaction_type, comment, system_id) 
+            VALUES ($1, $2, $3, 'Надходження', $4, $5::uuid)`,
+            [newCertificate.certificate_id, price, payment_method,  comment, system_id || 'Сертифікат створено']
         );
       
       res.status(201).json(newCertificate);

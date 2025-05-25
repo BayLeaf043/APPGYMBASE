@@ -1,25 +1,65 @@
-import React, { createContext, useState } from 'react';
+import React, { createContext, useState, useEffect } from 'react';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export const AuthContext = createContext();
 
 // Провайдер для обгортання додатку
 export const AuthProvider = ({ children }) => {
-  const [user, setUser] = useState(null); // Стан для зберігання даних користувача
+  const [user, setUser] = useState(null); // Дані користувача
+  const [token, setToken] = useState(null); // JWT токен
 
-  const login = (userData) => {
-    console.log('Авторизація успішна:', userData); 
-    setUser(userData); // Зберігаємо дані користувача після авторизації
-  };
+  // ===== Вхід =====
+  const login = async (userData) => {
+    console.log('Авторизація успішна:', userData);
+    setUser(userData.user); // userData має бути { user: {}, token: '...' }
+    setToken(userData.token);
 
-  const logout = (navigation) => {
-    setUser(null);
-    if (navigation) {
-      navigation.navigate('Home'); 
+    try {
+      await AsyncStorage.setItem('userToken', userData.token);
+      await AsyncStorage.setItem('userData', JSON.stringify(userData.user));
+    } catch (e) {
+      console.error('Помилка збереження токену', e);
     }
   };
 
+  // ===== Вихід =====
+  const logout = async (navigation) => {
+    setUser(null);
+    setToken(null);
+    try {
+      await AsyncStorage.removeItem('userToken');
+      await AsyncStorage.removeItem('userData');
+    } catch (e) {
+      console.error('Помилка видалення токену', e);
+    }
+
+    if (navigation) {
+      navigation.replace('Home');
+    }
+  };
+
+  // ===== Відновлення сесії при запуску =====
+  const loadSession = async () => {
+    try {
+      const storedToken = await AsyncStorage.getItem('userToken');
+      const storedUser = await AsyncStorage.getItem('userData');
+
+      if (storedToken && storedUser) {
+        setToken(storedToken);
+        setUser(JSON.parse(storedUser));
+        console.log('Сесію відновлено');
+      }
+    } catch (e) {
+      console.error('Помилка завантаження сесії', e);
+    }
+  };
+
+  useEffect(() => {
+    loadSession();
+  }, []);
+
   return (
-    <AuthContext.Provider value={{ user, login, logout }}>
+    <AuthContext.Provider value={{ user, token, login, logout }}>
       {children}
     </AuthContext.Provider>
   );

@@ -795,22 +795,23 @@ const handlePayment = () => {
             prevClients.filter((client) => client.client_id !== item.client_id)
           );
           
-        
+        if (selectedEvent.event_id && item.client_id) {
         // Видалення клієнта з бази даних
           fetch(`${BASE_URL}/calendar/${selectedEvent.event_id}/clients/${item.client_id}`, {
             method: 'DELETE',
           })
             .then((response) => {
-              if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
-              }
               return response.json();
             })
             .then((data) => {
               console.log('Клієнт успішно видалений:', data);
             })
             .catch((error) => console.error('Помилка видалення клієнта:', error));
+            } else {
+      console.log('Клієнт ще не збережений у базі даних, запит на видалення не виконується.');
+    }
         }}
+      
                 disabled={!selectedEvent.is_active} // Вимкнути кнопку, якщо подія оплачена
               >
                 <Text>🗑</Text>
@@ -825,14 +826,16 @@ const handlePayment = () => {
               <Text style={styles.actionButtonText}>Зберегти</Text>
             </TouchableOpacity>
 
+{user?.role === "Адміністратор" && (
             <TouchableOpacity style={[styles.actionButton, { backgroundColor: "blue", marginRight: 10 }]} onPress={handlePayment}>
               <Text style={styles.actionButtonText}>Оплатити</Text>
             </TouchableOpacity>
-
+)}
+{user?.role === "Адміністратор" && (
             <TouchableOpacity style={[styles.actionButton, { backgroundColor: "red" }]} onPress={() => handleDeleteEvent(selectedEvent.event_id)}>
               <Text style={styles.actionButtonText}>Видалити</Text>
             </TouchableOpacity>
-
+)}
           </View>
  )}
             <TouchableOpacity style={styles.cancelButton} onPress={() => setEditModalVisibleEvent(false)}>
@@ -861,7 +864,7 @@ const handlePayment = () => {
               }}
             >
               <Text>{cert.service_name}</Text>
-              <Text>{`${cert.used_sessions}/${cert.total_sessions}`}</Text>
+              <Text style={{marginRight:30}}>{`${cert.used_sessions}/${cert.total_sessions}`}</Text>
             </TouchableOpacity>
           )}
         />

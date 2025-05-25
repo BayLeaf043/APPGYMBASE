@@ -1,8 +1,11 @@
 const express = require('express');
 const bcrypt = require('bcrypt');
 const pool = require('../db');
+const jwt = require('jsonwebtoken');
 
 const router = express.Router();
+
+const JWT_SECRET = 'your-secret-key';
 
 router.post('/', async (req, res) => {
   try {
@@ -22,8 +25,15 @@ router.post('/', async (req, res) => {
       return res.status(400).json({ error: 'Невірний email або пароль' });
     }
 
+    const token = jwt.sign(
+      { userId: user.system_id, role: user.role },
+      JWT_SECRET,
+      { expiresIn: '7d' }
+    );
+
     res.json({
       success: true,
+      token,
       user: {
         surname: user.surname,
         name: user.name,

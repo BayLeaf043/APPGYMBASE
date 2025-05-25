@@ -71,13 +71,10 @@ export default function RegScreen() {
     .then((data) => {
       if (data.success) {
         login({
-          surname: data.user.surname,
-          name: data.user.name,
-          role: data.user.role, // Зберігаємо роль
-          system_id: data.user.system_id, // Зберігаємо system_id
+          token: data.token,
+          user: data.user,
         });
         Alert.alert(`Вітаємо, ${data.user.surname} ${data.user.name}!`);
-        navigation.navigate('Main'); // Перехід на головний екран
       } else {
         Alert.alert('Помилка авторизації', data.error || 'Невірний email або пароль');
       }

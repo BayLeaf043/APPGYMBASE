@@ -52,15 +52,20 @@ export default function MainDrawer({ navigation }) {
       ),
     }}>
       <Drawer.Screen name="Календар" component={CalendarScreen} />
-      <Drawer.Screen name="Працівники" component={EmployeesScreen} />
-      <Drawer.Screen name="Зали" component={HallsScreen} />
       <Drawer.Screen name="Клієнти" component={ClientsScreen} />
       <Drawer.Screen name="Сертифікати" component={CertificatesScreen} />
-      <Drawer.Screen name="Послуги" component={ServicesScreen} />
-      <Drawer.Screen name="Категорії" component={CategoriesScreen} />
-      <Drawer.Screen name="Фінанси" component={FinancesScreen} />
-      <Drawer.Screen name="Заробітня плата" component={SalaryScreen} />
-      <Drawer.Screen name="Звіт" component={ReportScreen} />
+      { (user?.role === 'Адміністратор') && (
+        <>
+        <Drawer.Screen name="Працівники" component={EmployeesScreen} />
+        <Drawer.Screen name="Зали" component={HallsScreen} />
+        <Drawer.Screen name="Послуги" component={ServicesScreen} />
+        <Drawer.Screen name="Категорії" component={CategoriesScreen} />
+        <Drawer.Screen name="Фінанси" component={FinancesScreen} />
+        <Drawer.Screen name="Заробітня плата" component={SalaryScreen} />
+        <Drawer.Screen name="Звіт" component={ReportScreen} />
+      </>
+      )}
+
     </Drawer.Navigator>
 );}
 

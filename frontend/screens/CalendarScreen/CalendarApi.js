@@ -16,9 +16,7 @@ export const fetchEvents = (system_id, setEvents) => {
         setEvents(formattedEvents);
       })
       .catch((error) => console.error('Помилка завантаження подій:', error));
-  } else {
-    console.error('system_id events користувача не знайдено');
-  }
+  } 
   };
 
 
@@ -30,9 +28,7 @@ export const fetchHalls = (system_id, setHalls) => {
                 data.filter((hall) => hall.status === "Активний")
               ))
               .catch((error) => console.error('Помилка завантаження залів:', error));
-          } else {
-            console.error('system_id halls користувача не знайдено');
-          }
+          } 
     };
 
 
@@ -43,9 +39,7 @@ export const fetchCategories = (system_id, setCategories) => {
             .then((data) => setCategories(
               data.filter((category) => category.status === "Активний")))
             .catch((error) => console.error('Помилка завантаження категорій:', error));
-          } else {
-            console.error('system_id categories користувача не знайдено');
-          }
+          } 
     };
 
 
@@ -62,9 +56,7 @@ export const fetchEmployees = (system_id, setEmployees) => {
               );
             })
             .catch((error) => console.error('Помилка завантаження співробітників:', error));
-        } else {
-          console.error('system_id employees користувача не знайдено');
-        }
+        } 
   };
 
 
@@ -81,9 +73,7 @@ export const fetchClients = (system_id, setClients) => {
                 );
             })
             .catch((error) => console.error('Помилка завантаження клієнтів:', error));
-        } else {
-          console.error('system_id clients користувача не знайдено');
-        }
+        } 
   };
 
 

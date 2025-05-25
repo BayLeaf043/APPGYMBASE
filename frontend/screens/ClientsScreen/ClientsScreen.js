@@ -190,6 +190,8 @@ export default function ClientsScreen() {
       </View>
 
       <View style={styles.box}>
+
+     
       
         <TouchableOpacity style={styles.addButton} onPress={() => setAddModalVisibleClient(true)}>
           <Text style={styles.addButtonText}>+ Додати</Text>
@@ -225,12 +227,14 @@ export default function ClientsScreen() {
             </TouchableOpacity>
             <Text style={[styles.clientText, {flex:3, marginRight: 10 }]}>{formatPhoneNumber(item.phone)}</Text>
             <View style={styles.actionButtonsContainer}>
+              
               <TouchableOpacity style={[styles.editButton, { marginRight: 10 }]} onPress={() => openEditModalClient(item)}>
                 <Text>✏️</Text>
               </TouchableOpacity>
               <TouchableOpacity style={styles.deleteButton} onPress={() => handleDeleteClient(item.client_id)}>
                 <Text>🗑</Text>
               </TouchableOpacity>
+              
             </View>
           </View>
           )}

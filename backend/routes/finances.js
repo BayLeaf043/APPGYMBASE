@@ -8,7 +8,6 @@ const financesSchema = Joi.object({
     finances_id: Joi.number().integer().positive().optional(),
     system_id: Joi.string().guid({ version: 'uuidv4' }).required(),
     created_at: Joi.date().optional(),
-    client_id: Joi.number().integer().positive().optional(),
     price: Joi.number().required().messages({
         'number.base': 'Ціна має бути числом',
         'any.required': 'Ціна є обов’язковою',
@@ -27,7 +26,14 @@ router.get('/', async (req, res) => {
         return res.status(400).json({ error: 'system_id є обов’язковим' });
       }
 
-      const result = await pool.query('SELECT * FROM finances WHERE system_id = $1', [system_id]);
+      const result = await pool.query(
+            `SELECT f.*, c.client_id
+             FROM finances f
+             LEFT JOIN certificates c ON f.certificate_id = c.certificate_id
+             WHERE f.system_id = $1`,
+            [system_id]
+        );
+        
       res.json(result.rows);
     } catch (err) {
       console.error('Error fetching finances:', err.message);
