@@ -89,5 +89,56 @@ router.post('/', async (req, res) => {
 });  
 
 
+// Розширений звіт по фінансам
+router.get('/report', async (req, res) => {
+  try {
+    const { system_id, startDate, endDate, payment_method } = req.query;
+
+    if (!system_id) {
+      return res.status(400).json({ error: req.t('error_system_id_required') });
+    }
+    if (!startDate || !endDate) {
+      return res.status(400).json({ error: req.t('error_dates_required') });
+    }
+    if (!payment_method) {
+      return res.status(400).json({ error: req.t('error_payment_method_required') });
+    }
+
+    // Базовий SQL-запит
+    const query = `
+      SELECT 
+        f.create_at,
+        f.transaction_type,
+        f.payment_method,
+        CASE 
+          WHEN f.transaction_type = 'income' THEN 
+            CONCAT(c.surname, ' ', c.name, ', ', 'оплата за послугу - ', s.name, 
+              CASE WHEN f.comment IS NOT NULL AND f.comment != '' THEN CONCAT(', ', f.comment) ELSE '' END)
+          ELSE f.comment
+        END AS comment,
+        f.price
+      FROM finances f
+      LEFT JOIN certificates cert ON f.certificate_id = cert.certificate_id
+      LEFT JOIN clients c ON cert.client_id = c.client_id
+      LEFT JOIN services s ON cert.service_id = s.service_id
+      WHERE f.system_id = $1
+        AND f.create_at >= $2
+        AND f.create_at <= $3
+        AND f.payment_method = $4
+      ORDER BY f.create_at ASC
+    `;
+
+    const queryParams = [system_id, startDate, endDate, payment_method];
+
+    const result = await pool.query(query, queryParams);
+
+    res.json(result.rows);
+  } catch (err) {
+    console.error('Error fetching finances report:', err.message);
+    res.status(500).json({ error: req.t('error_fetch_finances_report_failed') });
+  }
+});
+
+
 
 module.exports = router;

@@ -178,7 +178,9 @@
   "error_fetch_certificates_for_client": "Не вдалося отримати сертифікати для клієнта.",
   "success_sessions_deducted": "Сесії успішно відраховані.",
   "error_deduct_sessions_failed": "Не вдалося відрахувати сесії.",
-  "error_server": "Помилка сервера."
+  "error_server": "Помилка сервера.",
+  "error_fetch_finances_report_failed": "Не вдалося отримати звіт по фінансам.",
+  "error_fetch_certificates_report_failed": "Не вдалося отримати звіт по сертифікатах."
 
 
 }

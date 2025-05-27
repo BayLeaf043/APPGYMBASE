@@ -245,5 +245,50 @@ router.delete('/:certificate_id', async (req, res) => {
   };
 
 
+  // Отримати сертифікати для звіту
+router.get('/report', async (req, res) => {
+  try {
+    const { system_id, startDate, endDate } = req.query;
+
+    // Перевірка обов'язкових параметрів
+    if (!system_id) {
+      return res.status(400).json({ error: req.t('error_system_id_required') });
+    }
+    if (!startDate || !endDate) {
+      return res.status(400).json({ error: req.t('error_dates_required') });
+    }
+
+    // SQL-запит для отримання сертифікатів
+    const query = `
+      SELECT 
+        c.certificate_id,
+        c.created_at AS date_time,
+        s.name AS service_name,
+        CONCAT(cl.surname, ' ', cl.name) AS client_name,
+        c.valid_from,
+        c.valid_to,
+        c.payment_method,
+        c.price
+      FROM certificates c
+      JOIN clients cl ON c.client_id = cl.client_id
+      JOIN services s ON c.service_id = s.service_id
+      WHERE c.system_id = $1
+        AND c.created_at >= $2
+        AND c.created_at <= $3
+      ORDER BY c.created_at ASC
+    `;
+
+    const queryParams = [system_id, startDate, endDate];
+
+    const result = await pool.query(query, queryParams);
+
+    res.json(result.rows);
+  } catch (err) {
+    console.error('Error fetching certificates report:', err.message);
+    res.status(500).json({ error: req.t('error_fetch_certificates_report_failed') });
+  }
+});
+
+
 
 module.exports = router;

@@ -8,6 +8,7 @@ import { useFocusEffect } from '@react-navigation/native';
 import { AuthContext } from '../../AuthContext';
 import styles from './Certificate.style';
 import { useTranslation } from 'react-i18next';
+import {Alert} from 'react-native';
 import { fetchCertificates, fetchServices, fetchClients, addCertificate, deleteCertificate, editCertificate } from './CertificateApi';
 
 
@@ -116,14 +117,26 @@ export default function CertificatesScreen() {
   };
 
   const handleAddCertificate = () => {
+    if (user?.role === 'employee') {
+      Alert.alert(t('error'), t('permission_denied'));
+      return;
+    }
     addCertificate(newCertificate, certificates, setCertificates, resetNewCertificate, setAddModalVisibleCertificate, t);
   };
 
   const handleDeleteCertificate = (certificate_id) => {
+    if (user?.role === 'employee') {
+      Alert.alert(t('error'), t('permission_denied'));
+      return;
+    }
     deleteCertificate(certificate_id, certificates, setCertificates, t);
   };
 
   const handleEditCertificate = () => {
+    if (user?.role === 'employee') {
+      Alert.alert(t('error'), t('permission_denied'));
+      return;
+    }
     editCertificate(selectedCertificate, certificates, setCertificates, setEditModalVisibleCertificate, t);
   };
 

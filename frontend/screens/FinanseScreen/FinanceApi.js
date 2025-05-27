@@ -103,3 +103,41 @@ export const fetchBalances = (system_id, setBalances) => {
     .catch((error) => console.error('Error adding transaction:', error));
 };
 
+
+export const fetchFinanceReport = async (system_id, startDate, endDate, payment_method, t) => {
+    if (!system_id || !startDate || !endDate) {
+        console.error('Missing required parameters for fetching finance report');
+        Alert.alert(t('error'), t('error_missing_parameters'));
+        return;
+    }
+    if (!payment_method) {
+    console.error('Missing payment method for fetching finance report');
+    Alert.alert(t('error'), t('error_payment_method_required'));
+    return [];
+}
+
+    try {
+        const response = await fetch(
+            `${BASE_URL}/finances/report?system_id=${system_id}&startDate=${startDate}&endDate=${endDate}&payment_method=${payment_method}`,
+            {
+                method: 'GET',
+                headers: {
+                    'Accept-Language': i18n.language,
+                },
+            }
+        );
+
+        if (!response.ok) {
+            const errorData = await response.json();
+            Alert.alert(t('error'), errorData.error || t('error_fetch_finances_report_failed'));
+            return [];
+        }
+
+        const data = await response.json();
+        return data || [];
+    } catch (error) {
+        console.error('Error fetching finance report:', error);
+        Alert.alert(t('error'), t('error_fetch_finances_report_failed'));
+    }
+};
+

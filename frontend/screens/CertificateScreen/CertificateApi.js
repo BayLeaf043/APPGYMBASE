@@ -130,3 +130,35 @@ export const editCertificate = (updatedCertificate, certificates, setCertificate
     })
     .catch((error) => console.error('Error updating certificate:', error));
 };
+
+export const fetchCertificateReport = async (system_id, startDate, endDate, t) => {
+    if (!system_id || !startDate || !endDate) {
+        console.error('Missing required parameters for fetching certificate report');
+        Alert.alert(t('error'), t('error_missing_parameters'));
+        return [];
+    }
+
+    try {
+        const response = await fetch(
+            `${BASE_URL}/certificates/report?system_id=${system_id}&startDate=${startDate}&endDate=${endDate}`,
+            {
+                method: 'GET',
+                headers: {
+                    'Accept-Language': i18n.language,
+                },
+            }
+        );
+
+        if (!response.ok) {
+            const errorData = await response.json();
+            Alert.alert(t('error'), errorData.error || t('error_fetch_certificates_report_failed'));
+            return [];
+        }
+
+        const data = await response.json();
+        return data || [];
+    } catch (error) {
+        console.error('Error fetching certificate report:', error);
+        Alert.alert(t('error'), t('error_fetch_certificates_report_failed'));
+    }
+};

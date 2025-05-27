@@ -1,6 +1,4 @@
 import { View, Text, TouchableOpacity, FlatList, Modal, TextInput } from 'react-native';
-import * as FileSystem from 'expo-file-system';
-import * as Sharing from 'expo-sharing';
 import { TouchableWithoutFeedback, Keyboard } from 'react-native';
 import DateTimePickerModal from "react-native-modal-datetime-picker";
 import Svg, { Path } from 'react-native-svg';
@@ -12,6 +10,7 @@ import { Alert } from 'react-native';
 import styles from './Salary.style';
 import { useTranslation } from 'react-i18next';
 import i18n from '../../i18n';
+import { generatePDFReport } from '../../utils/pdfUtils';
 import { fetchCategories, fetchEmployees, fetchSalaryRecords, fetchSalaryReportRecords} from './SalaryApi';
 
 
@@ -32,18 +31,6 @@ export default function SalaryScreen() {
     const day = String(localDate.getDate()).padStart(2, '0');
     const month = String(localDate.getMonth() + 1).padStart(2, '0');
     const year = localDate.getFullYear();
-    return `${day}.${month}.${year}`;
-  };
-
-  const formatTimeToLocal = (time) => {
-    if (!time || typeof time !== 'string') return '';
-  const [hours, minutes] = time.split(':');
-  return `${hours}:${minutes}`;
-  };
-
-  const formatDateToDisplay = (date) => {
-    if (!date) return "";
-    const [year, month, day] = date.split("-");
     return `${day}.${month}.${year}`;
   };
 
@@ -165,73 +152,15 @@ export default function SalaryScreen() {
   }
 };
 
-const pad = (str, len) => String(str).padEnd(len, ' ');
-const padNum = (num, len) => String(Number(num).toFixed(2)).padStart(len, ' ');
-
 const handleDownloadReport = async (employee) => {
-
   try {
-    // 1. Завантажити всі записи для цього тренера за період
     const records = await fetchSalaryReportRecords(employee.user_id, startDate, endDate);
-
-    let content = `************ Розрахунок заробітної плати ************\n`;
-    content += `Період: ${formatDateToLocal(startDate)} - ${formatDateToLocal(endDate)}\n`;
-    content += `Тренер: ${employee.fullName}\n\n`;
-
-    // Визначаємо ширину стовпців
-    const colWidths = {
-      event: 8,
-      eventName: 18,
-      date: 10,
-      time: 11,
-      client: 20,
-      cert: 10,
-      service: 35, // більше місця для послуги
-      sum: 10,
-    };
-
-    // Шапка таблиці
-    content += '-'.repeat(120) + '\n';
-    content += `|${pad('Подія #', colWidths.event)}|${pad('Назва події', colWidths.eventName)}|${pad('Дата', colWidths.date)}|${pad('Час', colWidths.time)}|${pad('Клієнт', colWidths.client)}|${pad('Сертифікат', colWidths.cert)}|${pad('Послуга', colWidths.service)}|${pad('Сума, грн', colWidths.sum)}|\n`;
-    content += '-'.repeat(140) + '\n';
-
-    let total = 0;
-    let lastEventId = null;
-
-    for (const rec of records) {
-      if (rec.event_id !== lastEventId) {
-        content += `\n${'*'.repeat(5)} Подія #${rec.event_id} - ${rec.event_name} ${'*'.repeat(5)}\n\n`;
-        lastEventId = rec.event_id;
-      }
-      content += `|${pad(rec.event_id, colWidths.event)}`
-  + `|${pad(rec.event_name, colWidths.eventName)}`
-  + `|${pad(formatDateToLocal(rec.event_date), colWidths.date)}`
-  + `|${pad(formatTimeToLocal(rec.start_time) + '-' + formatTimeToLocal(rec.end_time), colWidths.time)}`
-  + `|${pad(rec.client_surname + ' ' + rec.client_name, colWidths.client)}`
-  + `|${pad('#' + rec.certificate_id, colWidths.cert)}`
-  + `|${pad(rec.service_name, colWidths.service)}`
-  + `|${padNum(rec.payment_amount, colWidths.sum)}|\n`;
-      total += Number(rec.payment_amount);
-    }
-    content += '-'.repeat(120) + '\n';
-    content += `Загальна сума: ${total.toFixed(2)} грн\n`;
-
-    const fileName = `Звіт_${employee.fullName.replace(/\s/g, '_')}.txt`;
-    const fileUri = FileSystem.cacheDirectory + fileName;
-
-    await FileSystem.writeAsStringAsync(fileUri, content, { encoding: FileSystem.EncodingType.UTF8 });
-
-    await Sharing.shareAsync(fileUri, {
-      mimeType: 'text/plain',
-      dialogTitle: 'Поділитися звітом',
-      UTI: 'public.text',
-    });
+    await generatePDFReport(employee, records, startDate, endDate, t);
   } catch (e) {
-    Alert.alert(t('error'), t('failed_to_generate_or_share_report'));
+    Alert.alert(t('error'), t('failed_to_generate_report'));
+    console.error(e);
   }
 };
-
-  
 
   return (
   

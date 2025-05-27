@@ -8,6 +8,7 @@ import { useFocusEffect } from '@react-navigation/native';
 import { AuthContext } from '../../AuthContext';
 import styles from './Clients.style';
 import { useTranslation } from 'react-i18next';
+import { Alert } from 'react-native';
 import { fetchClients, fetchServices, fetchCertificates, addClient, deleteClient, editClient} from './ClientsApi';
 
 const { height } = Dimensions.get('window');
@@ -32,6 +33,7 @@ export default function ClientsScreen() {
   const [editModalVisibleClient, setEditModalVisibleClient] = useState(false);
   const [newClient, setNewClient] = useState({ name: "", surname: "", phone: "", birthday: "", status: "active", system_id: user?.system_id });
   const [selectedClient, setSelectedClient] = useState(null);
+
 
   const [searchText, setSearchText] = useState(""); // Стан для тексту пошуку
   const [filteredClients, setFilteredClients] = useState([]); // Стан для відфільтрованих клієнтів
@@ -82,14 +84,26 @@ export default function ClientsScreen() {
   };
 
   const handleAddClient = () => {
+    if (user?.role === 'employee') {
+      Alert.alert(t('error'), t('permission_denied'));
+      return;
+    }
     addClient(newClient, clients, setClients, resetNewClient, setAddModalVisibleClient, t);
   };
 
   const handleDeleteClient = (client_id) => {
+    if (user?.role === 'employee') {
+      Alert.alert(t('error'), t('permission_denied'));
+      return;
+    }
     deleteClient(client_id, clients, setClients, t);
   };
 
   const handleEditClient = () => {
+    if (user?.role === 'employee') {
+      Alert.alert(t('error'), t('permission_denied'));
+      return;
+    }
     editClient(selectedClient, clients, setClients, setEditModalVisibleClient, t);
   };
 
@@ -391,7 +405,7 @@ export default function ClientsScreen() {
             onChangeText={(text) => {
               // Перевірка, чи є введене значення числом
               if (!isNaN(text) || text === '') {
-                setSelectedService({ ...selectedClient, phone: text });
+                setSelectedClient({ ...selectedClient, phone: text });
               }
             }}
             />

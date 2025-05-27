@@ -183,6 +183,40 @@ const resources = {
       sign_in: 'Увійти',
       confirm_password: 'Підтвердити пароль',
 
+      permission_denied: "У вас немає дозволу виконувати цю дію.",
+
+      salary_report: "Звіт про зарплату",
+  period: "Період",
+  employee: "Працівник",
+  event_id: "ID події",
+  event_name: "Назва події",
+  date: "Дата",
+  time: "Час",
+  client: "Клієнт",
+  certificate: "Сертифікат",
+  service: "Послуга",
+  amount: "Сума",
+  share_report: "Поділитися звітом",
+  select_format: "Виберіть формат",
+  choose_report_format: "Оберіть формат звіту",
+  failed_to_generate_report: "Не вдалося створити звіт.",
+  event: "Подія",
+
+  financial_report: "Фінансовий звіт",
+  select_period: "Оберіть період",
+  select_account: "Оберіть рахунок",
+
+  error_missing_parameters: "Відсутні необхідні параметри для отримання звіту.",
+  error_fetch_finances_report_failed: "Не вдалося отримати фінансовий звіт.",
+  get_report: 'Отримати звіт',
+
+  select_payment_method: "Оберіть метод оплати.",
+  no_data_for_report: "Дані відсутні для обраного періоду.",
+  info: "Інформація",
+  finance_report: "Фінансовий звіт",
+  certificates_report: "Звіт по сертифікатах",
+  certificate_report: "Звіт по сертифікатах",
+
     }
   },
   en: {
@@ -365,7 +399,38 @@ const resources = {
       sign_in: 'Sign in',
       confirm_password: 'Confirm password',
 
+      permission_denied: "You do not have permission to perform this action.",
 
+      salary_report: "Salary Report",
+      period: "Period",
+      employee: "Employee",
+      event_id: "Event ID",
+      event_name: "Event Name",
+      date: "Date",
+      time: "Time",
+      client: "Client",
+      certificate: "Certificate",
+      service: "Service",
+      amount: "Amount",
+      share_report: "Share Report",
+      select_format: "Select Format",
+      choose_report_format: "Choose the format for the report",
+      failed_to_generate_report: "Failed to generate the report.",
+      event: "Event",
+
+      financial_report: "Financial Report",
+      select_period: "Select Period",
+      select_account: "Select Account",
+
+      error_missing_parameters: "Missing required parameters for fetching the report.",
+      error_fetch_finances_report_failed: "Failed to fetch the finance report.",
+      get_report: 'Get Report',
+      select_payment_method: "Please select a payment method.",
+      no_data_for_report: "No data available for the selected period.",
+      info: "Information",
+      finance_report: "Finance Report",
+      certificates_report: "Certificates Report",
+      certificate_report: "Certificate Report",
     }
   }
 };
