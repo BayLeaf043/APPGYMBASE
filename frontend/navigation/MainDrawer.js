@@ -1,5 +1,5 @@
 import React, { useContext } from 'react';
-import { TouchableOpacity } from 'react-native';
+import { TouchableOpacity, View } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { createDrawerNavigator } from '@react-navigation/drawer';
 import { AuthContext } from '../AuthContext';
@@ -14,20 +14,24 @@ import SalaryScreen from '../screens/SalaryScreen/SalaryScreen';
 import ReportScreen from '../screens/ReportScreen';
 import CategoriesScreen from '../screens/CategoryScreen/CategoriesScreen';
 import { Alert } from 'react-native';
+import { useTranslation } from 'react-i18next';
+
+
 
 const Drawer = createDrawerNavigator();
 
 export default function MainDrawer({ navigation }) {
   const { user, logout } = useContext(AuthContext); // Отримуємо дані користувача та функцію logout
+  const { t } = useTranslation();
 
   const showUserAlert = () => {
     Alert.alert(
-      'Користувач', // Заголовок
-      `${user?.surname} ${user?.name}\nРоль: ${user?.role}`, 
+      t('user'), // Заголовок
+      `${user?.surname} ${user?.name}\n\n${t('role')}: ${t(user?.role)}\n`, 
       [
         { text: 'OK' },
         {
-          text: 'Завершити сесію',
+          text: t('logout'),
           onPress: () => logout(navigation), 
           style: 'destructive', 
         },
@@ -36,9 +40,22 @@ export default function MainDrawer({ navigation }) {
     );
   };
 
+  const { i18n } = useTranslation();
+
+const toggleLanguage = () => {
+  const newLang = i18n.language === 'uk' ? 'en' : 'uk';
+  i18n.changeLanguage(newLang);
+
+  Alert.alert(
+    t('language_changed'), // Заголовок
+    `${t('app_language_set_to')} ${newLang === 'uk' ? t('ukrainian') : t('english')}`, // Повідомлення
+    [{ text: 'OK' }] // Кнопка OK
+  );
+};
+
   return (
     <Drawer.Navigator 
-    initialRouteName="Календар"
+    initialRouteName={t('calendar')}
     screenOptions={{
       headerStyle: {
         backgroundColor: 'orange', 
@@ -46,25 +63,34 @@ export default function MainDrawer({ navigation }) {
         shadowOpacity: 0,
       },
       headerRight: () => (
-        <TouchableOpacity onPress={showUserAlert} style={{ marginRight: 15 }}>
-          <Ionicons name="person-circle-outline" size={28} color="white" />
-        </TouchableOpacity>
-      ),
+  <View style={{ flexDirection: 'row', alignItems: 'center', marginRight: 15 }}>
+            {/* Кнопка перемикання мови */}
+            <TouchableOpacity onPress={toggleLanguage} style={{ marginRight: 15 }}>
+              <Ionicons name="language-outline" size={24} color="white" />
+            </TouchableOpacity>
+
+            {/* Кнопка користувача */}
+            <TouchableOpacity onPress={showUserAlert}>
+              <Ionicons name="person-circle-outline" size={28} color="white" />
+            </TouchableOpacity>
+          </View>
+)
     }}>
-      <Drawer.Screen name="Календар" component={CalendarScreen} />
-      <Drawer.Screen name="Клієнти" component={ClientsScreen} />
-      <Drawer.Screen name="Сертифікати" component={CertificatesScreen} />
-      { (user?.role === 'Адміністратор') && (
+      <Drawer.Screen name={t('calendar')} component={CalendarScreen} />
+      <Drawer.Screen name={t('clients')} component={ClientsScreen} />
+      <Drawer.Screen name={t('certificates')} component={CertificatesScreen} />
+      { (user?.role === 'admin') && (
         <>
-        <Drawer.Screen name="Працівники" component={EmployeesScreen} />
-        <Drawer.Screen name="Зали" component={HallsScreen} />
-        <Drawer.Screen name="Послуги" component={ServicesScreen} />
-        <Drawer.Screen name="Категорії" component={CategoriesScreen} />
-        <Drawer.Screen name="Фінанси" component={FinancesScreen} />
-        <Drawer.Screen name="Заробітня плата" component={SalaryScreen} />
-        <Drawer.Screen name="Звіт" component={ReportScreen} />
+        <Drawer.Screen name={t('employees')} component={EmployeesScreen} />
+        <Drawer.Screen name={t('halls')} component={HallsScreen} />
+        <Drawer.Screen name={t('services')} component={ServicesScreen} />
+        <Drawer.Screen name={t('categories')} component={CategoriesScreen} />
+        <Drawer.Screen name={t('finances')} component={FinancesScreen} />
+        <Drawer.Screen name={t('salary')} component={SalaryScreen} />
+        <Drawer.Screen name={t('report')} component={ReportScreen} />
       </>
       )}
+
 
     </Drawer.Navigator>
 );}

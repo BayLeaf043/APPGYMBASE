@@ -10,10 +10,14 @@ import { BASE_URL } from '../../config';
 import { AuthContext } from '../../AuthContext';
 import { Alert } from 'react-native';
 import styles from './Salary.style';
+import { useTranslation } from 'react-i18next';
+import i18n from '../../i18n';
 import { fetchCategories, fetchEmployees, fetchSalaryRecords, fetchSalaryReportRecords} from './SalaryApi';
 
 
 export default function SalaryScreen() {
+
+  const { t } = useTranslation();
 
   const dismissKeyboard = () => {
     Keyboard.dismiss();
@@ -68,11 +72,11 @@ export default function SalaryScreen() {
 
   const handleShowSalaries = async () => {
   if (!startDate || !endDate) {
-    Alert.alert('Помилка', 'Оберіть обидві дати');
+    Alert.alert(t('error'), t('select_both_dates'));
     return;
   }
   if (startDate > endDate) {
-    Alert.alert('Помилка', 'Дата початку має бути меншою за дату кінця');
+    Alert.alert(t('error'), t('start_date_must_be_before_end_date'));
     return;
   }
   try {
@@ -103,7 +107,7 @@ export default function SalaryScreen() {
       setShowSalaries(true);
     });
   } catch (e) {
-    Alert.alert('Помилка', 'Не вдалося завантажити дані');
+    Alert.alert(t('error'), t('failed_to_load_data'));
   }
 };
 
@@ -137,7 +141,7 @@ export default function SalaryScreen() {
     const percent = Math.max(0, Math.min(1, parseFloat(cat.payment_percentage) || 0));
     return fetch(`${BASE_URL}/categories/${cat.category_id}`, {
       method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 'Content-Type': 'application/json', 'Accept-Language': i18n.language },
       body: JSON.stringify({ ...cat, payment_percentage: percent })
     })
     .then(res => res.json());
@@ -152,12 +156,12 @@ export default function SalaryScreen() {
     // Перевіряємо чи були помилки
     const hasError = results.some(r => r.error);
     if (hasError) {
-      Alert.alert('Помилка', 'Деякі категорії не вдалося оновити');
+      Alert.alert(t('error'), t('failed_to_update_categories'));
     } else {
-      Alert.alert('Успіх', 'Всі категорії успішно оновлені');
+      Alert.alert(t('success'), t('all_categories_updated_successfully'));
     }
   } catch (e) {
-    Alert.alert('Помилка', 'Сталася помилка при оновленні категорій');
+    Alert.alert(t('error'), t('failed_to_update_categories'));
   }
 };
 
@@ -223,7 +227,7 @@ const handleDownloadReport = async (employee) => {
       UTI: 'public.text',
     });
   } catch (e) {
-    Alert.alert('Помилка', 'Не вдалося згенерувати або поділитися звітом');
+    Alert.alert(t('error'), t('failed_to_generate_or_share_report'));
   }
 };
 
@@ -244,7 +248,7 @@ const handleDownloadReport = async (employee) => {
       <View style={styles.box}>
 
         <TouchableOpacity style={styles.addButton} onPress={openEditModal}>
-          <Text style={styles.addButtonText}>Редагувати нарахування виплат</Text>
+          <Text style={styles.addButtonText}>{t('edit_payment_allocations')}</Text>
         </TouchableOpacity>
 
        
@@ -252,7 +256,7 @@ const handleDownloadReport = async (employee) => {
         <View style={styles.datePicker}>
         <TouchableOpacity onPress={() => setShowStartPicker(true)} style={[styles.datePickerButton, { flex: 1, marginRight: 10 }]}>
             <Text style={styles.datePickerButtonText}>
-              {formatDateToLocal(startDate) ? `З: ${formatDateToLocal(startDate)}` : "Дата з"}
+              {formatDateToLocal(startDate) ? `${t('from')}: ${formatDateToLocal(startDate)}` : `${t('date_from')}:`}
             </Text>
           </TouchableOpacity>
           <DateTimePickerModal
@@ -275,7 +279,7 @@ const handleDownloadReport = async (employee) => {
 
           <TouchableOpacity onPress={() => setShowEndPicker(true)} style={[styles.datePickerButton, { flex: 1 }]}>
             <Text style={styles.datePickerButtonText}>
-              {formatDateToLocal(endDate) ? `По: ${formatDateToLocal(endDate)}` : "Дата по"}
+              {formatDateToLocal(endDate) ? `${t('to')}: ${formatDateToLocal(endDate)}` : `${t('date_to')}:`}
             </Text>
           </TouchableOpacity>
           <DateTimePickerModal
@@ -301,19 +305,19 @@ const handleDownloadReport = async (employee) => {
               onPress={handleShowSalaries}
               disabled={!startDate || !endDate}
             >
-              <Text style={styles.saveButtonText}>Показати</Text>
+              <Text style={styles.saveButtonText}>{t('show')}</Text>
             </TouchableOpacity>
             <TouchableOpacity
               style={[styles.resetButton, {marginHorizontal: 20}]}
               onPress={resetFilter}
             >
-              <Text style={styles.resetButtonText}>Скинути</Text>
+              <Text style={styles.resetButtonText}>{t('reset')}</Text>
             </TouchableOpacity>
 
             <TouchableOpacity style={styles.headerRow}>
-              <Text style={[styles.headerText, { flex: 3, marginRight: 5 }]}>Працівник</Text>
-              <Text style={[styles.headerText, { flex: 5,  }]}>Заробітня плата</Text>
-              
+              <Text style={[styles.headerText, { flex: 3, marginRight: 5 }]}>{t('employee')}</Text>
+              <Text style={[styles.headerText, { flex: 5,  }]}>{t('salary')}</Text>
+
             </TouchableOpacity>
           
       
@@ -325,7 +329,7 @@ const handleDownloadReport = async (employee) => {
       renderItem={({ item }) => (
         <View style={styles.financesItem}>
           <Text style={[styles.financesText, { flex: 4,  }]}>{item.fullName}</Text>
-          <Text style={[styles.financesText, { flex: 3, marginRight: 30 }]}>{item.totalSalary.toFixed(2)} грн</Text>
+          <Text style={[styles.financesText, { flex: 3, marginRight: 30 }]}>{item.totalSalary.toFixed(2)} {t('currency')}</Text>
           <TouchableOpacity style={[styles.editButton]}>
             <Text style={[styles.financesText, {flex: 2, fontSize:14}]} onPress={() => handleDownloadReport(item)}>📄</Text>
           </TouchableOpacity>
@@ -334,7 +338,7 @@ const handleDownloadReport = async (employee) => {
 
       ListEmptyComponent= {
       <View style={{ alignItems: 'center', marginTop: 20 }}>
-            <Text style={{ fontSize: 14, color: 'gray' }}>Немає даних для відображення</Text>
+            <Text style={{ fontSize: 14, color: 'gray' }}>{t('no_data_available')}</Text>
           </View>
     }
       
@@ -346,7 +350,7 @@ const handleDownloadReport = async (employee) => {
       <Modal visible={editModalVisiblePayment} transparent animationType="slide">
           <View style={styles.modalContainer}>
             <View style={styles.modalBox}>
-              <Text style={styles.modalTitle}>Відсоток виплати для категорій</Text>
+              <Text style={styles.modalTitle}>{t('payment_allocations_percentage')}</Text>
               <FlatList
                 data={editedCategories}
                 keyExtractor={item => item.category_id.toString()}
@@ -366,13 +370,13 @@ const handleDownloadReport = async (employee) => {
                 )}
               />
               <TouchableOpacity style={styles.saveButton} onPress={handleSave}>
-                <Text style={styles.saveButtonText}>Зберегти</Text>
+                <Text style={styles.saveButtonText}>{t('save')}</Text>
               </TouchableOpacity>
               <TouchableOpacity
                 style={styles.cancelButton}
                 onPress={() => setEditModalVisiblePayment(false)}
               >
-                <Text style={styles.cancelButtonText}>Скасувати</Text>
+                <Text style={styles.cancelButtonText}>{t('cancel')}</Text>
               </TouchableOpacity>
             </View>
           </View>

@@ -5,10 +5,13 @@ import { useState, useContext, useCallback } from "react";
 import { useFocusEffect } from '@react-navigation/native';
 import { AuthContext } from '../../AuthContext';
 import styles from './HallsScreen.styles';
+import { useTranslation } from 'react-i18next';
 import { fetchHalls, addHall, deleteHall, editHall } from './HallsApi';
 
 
 export default function HallsScreen() {
+
+  const { t } = useTranslation();
 
   const dismissKeyboard = () => {
     Keyboard.dismiss();
@@ -17,18 +20,18 @@ export default function HallsScreen() {
   const { user } = useContext(AuthContext);
   const [addModalVisible, setAddModalVisible] = useState(false);
   const [editModalVisible, setEditModalVisible] = useState(false);
-  const [newHall, setNewHall] = useState({ name: "", status: "Активний", system_id: user?.system_id });
+  const [newHall, setNewHall] = useState({ name: "", status: "active", system_id: user?.system_id });
   const [selectedHall, setSelectedHall] = useState(null);
 
   useFocusEffect(
     useCallback(() => {
-      fetchHalls(user?.system_id, setHalls);
+      fetchHalls(user?.system_id, setHalls, t);
     }, [user])
   );
 
   const resetNewHall = () => {
     setNewHall({
-      name: "", status: "Активний", system_id: user?.system_id
+      name: "", status: "active", system_id: user?.system_id
     });
   };
 
@@ -43,15 +46,15 @@ export default function HallsScreen() {
   };
 
   const handleAddHall = () => {
-    addHall(newHall, halls, setHalls, resetNewHall, setAddModalVisible);
+    addHall(newHall, halls, setHalls, resetNewHall, setAddModalVisible, t);
   };
 
   const handleDeleteHall = (hall_id) => {
-    deleteHall(hall_id, halls, setHalls);
+    deleteHall(hall_id, halls, setHalls, t);
   };
 
   const handleEditHall = () => {
-    editHall(selectedHall, halls, setHalls, setEditModalVisible);
+    editHall(selectedHall, halls, setHalls, setEditModalVisible, t);
   };
 
 
@@ -71,18 +74,18 @@ export default function HallsScreen() {
         
         {/* Кнопка "Додати" */}
         <TouchableOpacity style={styles.addButton} onPress={() => setAddModalVisible(true)}>
-          <Text style={styles.addButtonText}>+ Додати</Text>
+          <Text style={styles.addButtonText}>+ {t('add')}</Text>
         </TouchableOpacity>
 
         <View style={styles.headerRow}>
-          <Text style={[styles.headerText, { flex: 2 }]}>Назва</Text>
-          <Text style={[styles.headerText, { flex: 4, marginLeft:10 }]}>Статус</Text>
+          <Text style={[styles.headerText, { flex: 2 }]}>{t('title')}</Text>
+          <Text style={[styles.headerText, { flex: 4, marginLeft:10 }]}>{t('status')}</Text>
         </View>
 
          {/* Список залів */}
         {halls.length === 0 ? (
          <View style={{ alignItems: 'center', marginTop: 20 }}>
-          <Text style={{ fontSize: 16, color: 'gray' }}>Немає доступних залів</Text>
+          <Text style={{ fontSize: 16, color: 'gray' }}>{t('no_available_halls')}</Text>
          </View>
         ) : (
          <FlatList
@@ -94,7 +97,7 @@ export default function HallsScreen() {
                 <Text style={styles.hallText}>{item.name}</Text>
               </View>
 
-              <Text style={[styles.hallText, {flex: 2, marginRight: 10, color: item.status === "Активний" ? "green" : "red" }]}>{item.status}</Text>
+              <Text style={[styles.hallText, {flex: 2, marginRight: 10, color: item.status === "active" ? "green" : "red" }]}>{t(item.status)}</Text>
               
               <View style={styles.actionButtonsContainer}>
               <TouchableOpacity style={[styles.editButton, {marginRight: 10}]} onPress={() => openEditModal(item)}>
@@ -116,18 +119,18 @@ export default function HallsScreen() {
       <Modal visible={addModalVisible} transparent animationType="slide">
         <View style={styles.modalContainer}>
           <View style={styles.modalBox}>
-            <Text style={styles.modalTitle}>Додати зал</Text>
+            <Text style={styles.modalTitle}>{t('add_hall')}</Text>
             <TextInput
               style={styles.input}
-              placeholder="Назва залу"
+              placeholder={t('hall_name')}
               value={newHall.name}
               onChangeText={(text) => setNewHall({ ...newHall, name: text })}
             />
             <TouchableOpacity style={styles.saveButton} onPress={handleAddHall}>
-              <Text style={styles.saveButtonText}>Додати</Text>
+              <Text style={styles.saveButtonText}>{t('add')}</Text>
             </TouchableOpacity>
             <TouchableOpacity style={styles.cancelButton} onPress={closeAddModal}>
-              <Text style={styles.cancelButtonText}>Скасувати</Text>
+              <Text style={styles.cancelButtonText}>{t('cancel')}</Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -138,29 +141,29 @@ export default function HallsScreen() {
       <Modal visible={editModalVisible} transparent animationType="slide">
         <View style={styles.modalContainer}>
           <View style={styles.modalBox}>
-            <Text style={styles.modalTitle}>Редагувати зал</Text>
+            <Text style={styles.modalTitle}>{t('edit_hall')}</Text>
             <TextInput
               style={styles.input}
-              placeholder="Назва залу"
+              placeholder={t('hall_name')}
               value={selectedHall?.name}
               onChangeText={(text) => setSelectedHall({ ...selectedHall, name: text })}
             />
             <TouchableOpacity
-                style={[styles.toggleButton, {backgroundColor: selectedHall?.status === "Активний" ? "green" : "red"}]}
+                style={[styles.toggleButton, {backgroundColor: selectedHall?.status === "active" ? "green" : "red"}]}
                 onPress={() =>
                   setSelectedHall({
                     ...selectedHall,
-                    status: selectedHall.status === "Активний" ? "Неактивний" : "Активний",
+                    status: selectedHall.status === "active" ? "inactive" : "active",
                   })
                 }
               >
-              <Text style={styles.toggleButtonText}>{selectedHall?.status}</Text>
+              <Text style={styles.toggleButtonText}>{t(selectedHall?.status)}</Text>
             </TouchableOpacity>
             <TouchableOpacity style={styles.saveButton} onPress={handleEditHall}>
-              <Text style={styles.saveButtonText}>Зберегти</Text>
+              <Text style={styles.saveButtonText}>{t('save')}</Text>
             </TouchableOpacity>
             <TouchableOpacity style={styles.cancelButton} onPress={() => setEditModalVisible(false)}>
-              <Text style={styles.cancelButtonText}>Скасувати</Text>
+              <Text style={styles.cancelButtonText}>{t('cancel')}</Text>
             </TouchableOpacity>
           </View>
         </View>

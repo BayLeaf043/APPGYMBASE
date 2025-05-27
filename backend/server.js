@@ -1,6 +1,7 @@
 
 require('dotenv').config();
 const express = require('express');
+const { i18n, middleware } = require('./i18n');
 const cors = require('cors');
 const pool = require('./db'); // Підключення БД
 
@@ -21,8 +22,11 @@ const salaryRoutes = require('./routes/salary');
 const app = express();
 const port = process.env.PORT || 5000;
 
+
+
 app.use(cors());
 app.use(express.json());
+app.use(middleware.handle(i18n));
 
 // Маршрути
 app.use('/halls', hallsRoutes);

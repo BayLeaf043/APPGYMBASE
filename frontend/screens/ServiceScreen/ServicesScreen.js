@@ -6,9 +6,12 @@ import { useState, useContext,  useCallback } from "react";
 import { useFocusEffect } from '@react-navigation/native';
 import { AuthContext } from '../../AuthContext';
 import styles from './Services.style';
+import { useTranslation } from 'react-i18next';
 import { fetchCategories, fetchServices, addService, deleteService, editService } from './ServicesApi';
 
 export default function ServicesScreen() {
+
+  const { t } = useTranslation();
 
   const dismissKeyboard = () => {
     Keyboard.dismiss();
@@ -20,7 +23,7 @@ export default function ServicesScreen() {
   const [modalVisibleService, setModalVisibleService] = useState(false);
   const [addModalVisibleService, setAddModalVisibleService] = useState(false);
   const [editModalVisibleService, setEditModalVisibleService] = useState(false);
-  const [newService, setNewService] = useState({ name: "", status: "Активний", price: "", category_id: null, total_sessions:"", system_id: user?.system_id });
+  const [newService, setNewService] = useState({ name: "", status: "active", price: "", category_id: null, total_sessions:"", system_id: user?.system_id });
   const [selectedService, setSelectedService] = useState(null);
 
   useFocusEffect(
@@ -37,7 +40,7 @@ export default function ServicesScreen() {
 
   const resetNewService = () => {
     setNewService({
-      name: "", status: "Активний", price: "", category_id: null, total_sessions:"", system_id: user?.system_id
+      name: "", status: "active", price: "", category_id: null, total_sessions:"", system_id: user?.system_id
     });
   };
 
@@ -52,15 +55,15 @@ export default function ServicesScreen() {
   };
 
   const handleAddService = () => {
-    addService(newService, services, setServices, resetNewService, setAddModalVisibleService);
+    addService(newService, services, setServices, resetNewService, setAddModalVisibleService, t);
   };
 
   const handleDeleteService = (service_id) => {
-    deleteService(service_id, services, setServices);
+    deleteService(service_id, services, setServices, t);
   };
 
   const handleEditService = () => {
-    editService(selectedService, services, setServices, setEditModalVisibleService);
+    editService(selectedService, services, setServices, setEditModalVisibleService, t);
   };
 
   const sortServicesAlphabetically = (services) => {
@@ -83,18 +86,18 @@ export default function ServicesScreen() {
       <View style={styles.box}>
 
         <TouchableOpacity style={styles.addButton} onPress={() => setAddModalVisibleService(true)}>
-          <Text style={styles.addButtonText}>+ Додати</Text>
+          <Text style={styles.addButtonText}>+ {t('add')}</Text>
         </TouchableOpacity> 
 
         <View style={styles.headerRow}>
-          <Text style={[styles.headerText, { flex: 2 }]}>Назва</Text>
-          <Text style={[styles.headerText, { flex: 2, marginRight: 40 }]}>Статус</Text>
+          <Text style={[styles.headerText, { flex: 2 }]}>{t('title')}</Text>
+          <Text style={[styles.headerText, { flex: 2, marginRight: 40 }]}>{t('status')}</Text>
         </View> 
 
       {/* Список послуг */}
         {services.length === 0 ? (
           <View style={{ alignItems: 'center', marginTop: 20 }}>
-            <Text style={{ fontSize: 16, color: 'gray' }}>Немає доступних послуг</Text>
+            <Text style={{ fontSize: 16, color: 'gray' }}>{t('no_services_available')}</Text>
           </View>
           ) : (
         <FlatList
@@ -105,7 +108,7 @@ export default function ServicesScreen() {
             <TouchableOpacity style={[styles.serviceTextContainer, { flex: 3, marginRight: 10 }]} onPress={() => openModalService(item)}>
               <Text style={styles.serviceText}>{item.name}</Text>
             </TouchableOpacity>
-            <Text style={[styles.serviceText, { flex:2, marginRight: 10, color: item.status === "Активний" ? "green" : "red" }]}>{item.status}</Text>
+            <Text style={[styles.serviceText, { flex:2, marginRight: 10, color: item.status === "active" ? "green" : "red" }]}>{t(item.status)}</Text>
             <View style={styles.actionButtonsContainer}>
               <TouchableOpacity style={[styles.editButton, {marginRight: 10}]} onPress={() => openEditModalService(item)}>
                 <Text>✏️</Text>
@@ -126,26 +129,26 @@ export default function ServicesScreen() {
           <View style={styles.modalBox}>
             {selectedService && (
             <>
-            <Text style={styles.modalTitle}>Інформація про послугу</Text>
-            
+            <Text style={styles.modalTitle}>{t('service_info')}</Text>
+
             <Text style={styles.modalText}>{selectedService.name}</Text>
           
             <Text style={styles.modalText}>
-              Статус:{" "}
-              <Text style={{ color: selectedService.status === "Активний" ? "green" : "red" }}>
-                {selectedService.status}
+              {t('status')}:{" "}
+              <Text style={{ color: selectedService.status === "active" ? "green" : "red" }}>
+                {t(selectedService.status)}
               </Text>
             </Text>
-            <Text style={styles.modalText}>Ціна: {selectedService.price} грн</Text>
+            <Text style={styles.modalText}>{t('price')}: {selectedService.price} {t('currency')}</Text>
             <Text style={styles.modalText}>
-              Категорія:{" "}
-              {categories.find(category => category.category_id === selectedService.category_id)?.name || "Невідома категорія"}
+              {t('category')}:{" "}
+              {categories.find(category => category.category_id === selectedService.category_id)?.name || t('unknown_category')}
             </Text>
-            <Text style={styles.modalText}>Кількість відвідувань: {selectedService.total_sessions}</Text>
+            <Text style={styles.modalText}>{t('total_sessions')}: {selectedService.total_sessions}</Text>
             </>
             )}
           <TouchableOpacity style={styles.cancelButton} onPress={() => setModalVisibleService(false)}>
-            <Text style={styles.cancelButtonText}>Закрити</Text>
+            <Text style={styles.cancelButtonText}>{t('close')}</Text>
           </TouchableOpacity>
           </View>
         </View>
@@ -156,10 +159,10 @@ export default function ServicesScreen() {
       <Modal visible={addModalVisibleService} transparent animationType="slide">
         <View style={[styles.modalContainer, { justifyContent: "flex-start", paddingTop: 20, }]}>
           <View style={styles.modalBox}>
-            <Text style={styles.modalTitle}>Додати послугу</Text>
+            <Text style={styles.modalTitle}>{t('add_service')}</Text>
             <TextInput
               style={styles.input}
-              placeholder="Назва послуги"
+              placeholder={t('service_name')}
               value={newService.name}
               onChangeText={(text) => setNewService({ ...newService, name: text })}
             />
@@ -175,7 +178,7 @@ export default function ServicesScreen() {
               }))}
               labelField="label"
               valueField="value"
-              placeholder="Оберіть категорію"
+              placeholder={t('select_category')}
               value={newService.category_id}
               onChange={(item) => {
                 setNewService({
@@ -187,7 +190,7 @@ export default function ServicesScreen() {
 
             <TextInput
             style={styles.input}
-            placeholder="Ціна"
+            placeholder={t('price')}
             value={newService.price}
             onChangeText={(text) => {
               if (!isNaN(text) || text === '') {
@@ -197,7 +200,7 @@ export default function ServicesScreen() {
             />
             <TextInput
             style={styles.input}
-            placeholder="Кількість відвідувань"
+            placeholder={t('total_sessions')}
             value={newService.total_sessions}
             onChangeText={(text) => {
               if (!isNaN(text) || text === '') {
@@ -206,10 +209,10 @@ export default function ServicesScreen() {
               }}
             />
             <TouchableOpacity style={styles.saveButton} onPress={handleAddService}>
-              <Text style={styles.saveButtonText}>Додати</Text>
+              <Text style={styles.saveButtonText}>{t('add')}</Text>
             </TouchableOpacity>
             <TouchableOpacity style={styles.cancelButton} onPress={closeAddModal}>
-              <Text style={styles.cancelButtonText}>Скасувати</Text>
+              <Text style={styles.cancelButtonText}>{t('cancel')}</Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -221,11 +224,11 @@ export default function ServicesScreen() {
       <Modal visible={editModalVisibleService} transparent animationType="slide">
         <View style={[styles.modalContainer, { justifyContent: "flex-start", paddingTop: 20, }]}>
           <View style={styles.modalBox}>
-            <Text style={styles.modalTitle}>Редагувати послугу</Text>
+            <Text style={styles.modalTitle}>{t('edit_service')}</Text>
 
             <TextInput
               style={styles.input}
-              placeholder="Назва послуги"
+              placeholder={t('service_name')}
               value={selectedService?.name}
               onChangeText={(text) => setSelectedService({ ...selectedService, name: text })}
             />
@@ -241,7 +244,7 @@ export default function ServicesScreen() {
               }))}
               labelField="label"
               valueField="value"
-              placeholder="Оберіть категорію"
+              placeholder={t('select_category')}
               value={selectedService?.category_id}
               onChange={(item) => {
                 setSelectedService({
@@ -252,7 +255,7 @@ export default function ServicesScreen() {
             />
             <TextInput
             style={styles.input}
-            placeholder="Ціна"
+            placeholder={t('price')}
             value={selectedService?.price}
             
             keyboardType="numeric"
@@ -260,13 +263,12 @@ export default function ServicesScreen() {
               // Перевірка, чи є введене значення числом
               if (!isNaN(text) || text === '') {
                 setSelectedService({ ...selectedService, price: text });
-                
               }
             }}
           />
           <TextInput
             style={styles.input}
-            placeholder="Кількість відвідувань"
+            placeholder={t('total_sessions')}
             value={selectedService?.total_sessions?.toString() || ""}
            
             keyboardType="numeric"
@@ -278,21 +280,21 @@ export default function ServicesScreen() {
             }}
           />
             <TouchableOpacity
-              style={[styles.toggleButton, {backgroundColor: selectedService?.status === "Активний" ? "green" : "red"}]}
+              style={[styles.toggleButton, {backgroundColor: selectedService?.status === "active" ? "green" : "red"}]}
               onPress={() =>
                 setSelectedService({
                   ...selectedService,
-                  status: selectedService.status === "Активний" ? "Неактивний" : "Активний",
+                  status: selectedService.status === "active" ? "inactive" : "active",
                 })
               }
             >
-              <Text style={styles.toggleButtonText}>{selectedService?.status}</Text>
+              <Text style={styles.toggleButtonText}>{t(selectedService?.status)}</Text>
             </TouchableOpacity>
             <TouchableOpacity style={styles.saveButton} onPress={handleEditService}>
-              <Text style={styles.saveButtonText}>Зберегти</Text>
+              <Text style={styles.saveButtonText}>{t('save')}</Text>
             </TouchableOpacity>
             <TouchableOpacity style={styles.cancelButton} onPress={() => setEditModalVisibleService(false)}>
-              <Text style={styles.cancelButtonText}>Скасувати</Text>
+              <Text style={styles.cancelButtonText}>{t('cancel')}</Text>
             </TouchableOpacity>
           </View>
         </View>

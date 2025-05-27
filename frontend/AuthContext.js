@@ -10,15 +10,15 @@ export const AuthProvider = ({ children }) => {
 
   // ===== Вхід =====
   const login = async (userData) => {
-    console.log('Авторизація успішна:', userData);
-    setUser(userData.user); // userData має бути { user: {}, token: '...' }
+    console.log('Authorization successful:', userData);
+    setUser(userData.user);
     setToken(userData.token);
 
     try {
       await AsyncStorage.setItem('userToken', userData.token);
       await AsyncStorage.setItem('userData', JSON.stringify(userData.user));
     } catch (e) {
-      console.error('Помилка збереження токену', e);
+      console.error('Error saving token', e);
     }
   };
 
@@ -30,7 +30,7 @@ export const AuthProvider = ({ children }) => {
       await AsyncStorage.removeItem('userToken');
       await AsyncStorage.removeItem('userData');
     } catch (e) {
-      console.error('Помилка видалення токену', e);
+      console.error('Error removing token', e);
     }
 
     if (navigation) {
@@ -47,10 +47,10 @@ export const AuthProvider = ({ children }) => {
       if (storedToken && storedUser) {
         setToken(storedToken);
         setUser(JSON.parse(storedUser));
-        console.log('Сесію відновлено');
+        console.log('Session restored');
       }
     } catch (e) {
-      console.error('Помилка завантаження сесії', e);
+      console.error('Error loading session', e);
     }
   };
 

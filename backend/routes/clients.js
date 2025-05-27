@@ -7,32 +7,32 @@ const router = express.Router();
 const clientSchema = Joi.object({
   client_id: Joi.number().integer().positive().optional(),
   name: Joi.string().min(3).max(50).required().messages({
-    'string.empty': 'Ім’я є обов’язковим',
-    'string.min': 'Ім’я має містити щонайменше 3 символи',
-    'string.max': 'Ім’я не може перевищувати 50 символів',
+    'string.empty': 'error_client_name_required',
+    'string.min': 'error_client_name_min',
+    'string.max': 'error_client_name_max',
   }),
   surname: Joi.string().min(3).max(50).required().messages({
-    'string.empty': 'Прізвище є обов’язковим',
-    'string.min': 'Прівище має містити щонайменше 3 символи',
-    'string.max': 'Прізвище не може перевищувати 50 символів',
+    'string.empty': 'error_client_surname_required',
+    'string.min': 'error_client_surname_min',
+    'string.max': 'error_client_surname_max',
   }),
   phone: Joi.string().pattern(/^\d{10}$/).required().messages({
-      'string.empty': 'Телефон є обов’язковим',
-      'string.pattern.base': 'Телефон має містити 10 цифр',
+      'string.empty': 'error_client_phone_required',
+      'string.pattern.base': 'error_client_phone_invalid',
  }),
- status: Joi.string().valid('Активний', 'Неактивний').required().messages({
-         'any.only': 'Статус має бути "Активний" або "Неактивний"',
-         'any.required': 'Статус є обов’язковим',
+ status: Joi.string().valid('active', 'inactive').required().messages({
+         'any.only': 'error_client_status_invalid',
+         'any.required': 'error_client_status_required',
      }),
  birthday: Joi.date()
     .less('now') 
     .greater('1900-01-01') 
     .required()
     .messages({
-      'date.base': 'Дата народження має бути коректною датою',
-      'date.less': 'Дата народження не може бути в майбутньому',
-      'date.greater': 'Дата народження має бути після 1 січня 1900 року',
-      'any.required': 'Дата народження є обов’язковою',
+      'date.base': 'error_client_birthday_invalid',
+      'date.less': 'error_client_birthday_future',
+      'date.greater': 'error_client_birthday_past',
+      'any.required': 'error_client_birthday_required',
     }),
   system_id: Joi.string().guid({ version: 'uuidv4' }).required(),
   created_at: Joi.date().optional(),
@@ -44,13 +44,13 @@ router.get('/', async (req, res) => {
     const { system_id } = req.query;
 
     if (!system_id) {
-      return res.status(400).json({ error: 'system_id є обов’язковим' });
+      return res.status(400).json({ error: req.t('error_system_id_required') });
     }
     const result = await pool.query('SELECT * FROM clients WHERE system_id = $1',[system_id]);
     res.json(result.rows);
   } catch (err) {
     console.error('Error fetching clients:', err.message);
-    res.status(500).json({ error: 'Failed to fetch clients'});
+    res.status(500).json({ error: req.t('error_fetch_clients_failed') });
   }
 });
 
@@ -59,11 +59,10 @@ router.get('/', async (req, res) => {
 router.post('/', async (req, res) => {
   try {
     const { name, surname, phone, birthday, system_id, status } = req.body;
-    console.log('Отримані дані:', { name, surname, phone, birthday, system_id, status });
 
     const { error } = clientSchema.validate(req.body);
     if (error) {
-      return res.status(400).json({ error: error.details[0].message });
+      return res.status(400).json({ error: req.t(error.details[0].message) });
     }
 
     // Додавання нового клієнта до бази даних
@@ -75,7 +74,7 @@ router.post('/', async (req, res) => {
     res.status(201).json(result.rows[0]);
   } catch (err) {
     console.error('Error adding client:', err.message);
-    res.status(500).json({ error: 'Failed to add client' });
+    res.status(500).json({ error: req.t('error_add_client_failed') });
   }
 });
 
@@ -88,7 +87,7 @@ router.put('/:client_id', async (req, res) => {
 
     const { error } = clientSchema.validate(validatedData);
     if (error) {
-      return res.status(400).json({ error: error.details[0].message });
+      return res.status(400).json({ error: req.t(error.details[0].message) });
     }
 
     const { name, surname, phone, birthday, status } = validatedData;
@@ -100,13 +99,13 @@ router.put('/:client_id', async (req, res) => {
     );
 
     if (result.rows.length === 0) {
-      return res.status(404).json({ error: 'Client not found' });
+      return res.status(404).json({ error: req.t('error_client_not_found') });
     }
 
     res.json(result.rows[0]);
   } catch (err) {
     console.error('Error updating client:', err.message);
-    res.status(500).json({ error: 'Failed to update client' });
+    res.status(500).json({ error: req.t('error_update_client_failed') });
   }
 });
 
@@ -124,20 +123,20 @@ router.delete('/:client_id', async (req, res) => {
 
     if (parseInt(certificateCheck.rows[0].count, 10) > 0) {
       return res.status(400).json({
-        error: 'Клієнт користується послугами. Видалення заборонено. Можете змінити статус клієнта на "Неактивний".',
+        error: req.t('error_client_in_use'),
       });
     }
   
       const result = await pool.query('DELETE FROM clients WHERE client_id = $1 RETURNING *', [client_id]);
   
       if (result.rows.length === 0) {
-        return res.status(404).json({ error: 'Client not found' });
+        return res.status(404).json({ error: req.t('error_client_not_found') });
       }
   
       res.json({ message: 'Client deleted successfully' });
     } catch (err) {
       console.error('Error deleting client:', err.message);
-      res.status(500).json({ error: `Failed to delete client: ${err.message}` });
+      res.status(500).json({ error: req.t('error_delete_client_failed') });
     }
   });
 

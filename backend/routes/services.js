@@ -9,30 +9,30 @@ const router = express.Router();
 const serviceSchema = Joi.object({
   service_id: Joi.number().integer().positive().optional(),
   name: Joi.string().min(3).max(100).required().messages({
-    'string.empty': 'Назва є обов’язковою',
-    'string.min': 'Назва має містити щонайменше 3 символи',
-    'string.max': 'Назва не може перевищувати 50 символів',
+    'string.empty': 'error_service_name_required',
+    'string.min': 'error_service_name_min',
+    'string.max': 'error_service_name_max',
   }),
   price: Joi.number().positive().required().messages({
-    'number.base': 'Ціна повнна бути числом',
-    'number.positive': 'Ціна повинна бути додатнім числом',
+    'number.base': 'error_service_price_number',
+    'number.positive': 'error_service_price_positive',
   }),
-  status: Joi.string().valid('Активний', 'Неактивний').required().messages({
-    'any.only': 'Статус повинен бути "Активний" або "Неактивний"',
-    'string.empty': 'Статус є обов’язковим',
+  status: Joi.string().valid('active', 'inactive').required().messages({
+    'any.only': 'error_service_status_invalid',
+    'string.empty': 'error_service_status_required',
   }),
   system_id: Joi.string().guid({ version: 'uuidv4' }).required(),
   category_id: Joi.number().integer().positive().required().messages({
-    'number.base': 'Оберіть категорію',
-    'number.integer': 'Оберіть категорію',
-    'number.positive': 'Оберіть категорію',
-    'any.required': 'Оберіть категорію',
+    'number.base': 'error_service_category_required',
+    'number.integer': 'error_service_category_required',
+    'number.positive': 'error_service_category_required',
+    'any.required': 'error_service_category_required',
   }),
   total_sessions: Joi.number().integer().min(1).required().messages({
-    'number.base': 'Кількість занять повинна бути числом',
-    'number.integer': 'Кількість занять повинна бути цілим числом',
-    'number.min': 'Кількість занять повинна бути не менше 1',
-    'any.required': 'Кількість занять є обов’язковою',
+    'number.base': 'error_service_sessions_number',
+    'number.integer': 'error_service_sessions_integer',
+    'number.min': 'error_service_sessions_min',
+    'any.required': 'error_service_sessions_required',
   }),
   created_at: Joi.date().optional(),
 });
@@ -43,13 +43,13 @@ router.get('/', async (req, res) => {
     const { system_id } = req.query;
 
     if (!system_id) {
-      return res.status(400).json({ error: 'system_id є обов’язковим' });
+      return res.status(400).json({ error: req.t('error_system_id_required') });
     }
     const result = await pool.query('SELECT * FROM services WHERE system_id = $1',[system_id]);
     res.json(result.rows);
   } catch (err) {
     console.error('Error fetching services:', err.message);
-    res.status(500).json({ error: 'Failed to fetch services' });
+    res.status(500).json({ error: req.t('error_fetch_services_failed') });
   }
 });
 
@@ -61,11 +61,7 @@ router.post('/', async (req, res) => {
 
     const { error } = serviceSchema.validate(req.body);
     if (error) {
-      return res.status(400).json({ error: error.details[0].message });
-    }
-
-    if (!category_id) {
-      return res.status(400).json({ error: 'category_id є обов’язковим' });
+      return res.status(400).json({ error: req.t(error.details[0].message) });
     }
 
     // Перевірка існування категорії
@@ -75,7 +71,7 @@ router.post('/', async (req, res) => {
     );
 
     if (categoryResult.rows.length === 0) {
-      return res.status(404).json({ error: 'Категорія не знайдена' });
+      return res.status(404).json({ error: req.t('error_category_not_found') });
     }
 
     // Додати послугу
@@ -87,7 +83,7 @@ router.post('/', async (req, res) => {
     res.status(201).json(result.rows[0]);
   } catch (err) {
     console.error('Error adding service:', err.message);
-    res.status(500).json({ error: 'Failed to add service' });
+    res.status(500).json({ error: req.t('error_add_service_failed') });
   }
 });  
 
@@ -101,7 +97,7 @@ router.put('/:service_id', async (req, res) => {
     // Валідація вхідних даних
     const { error } = serviceSchema.validate(req.body);
     if (error) {
-      return res.status(400).json({ error: error.details[0].message });
+      return res.status(400).json({ error: req.t(error.details[0].message) });
     }
 
   
@@ -112,7 +108,7 @@ router.put('/:service_id', async (req, res) => {
     );
 
     if (categoryResult.rows.length === 0) {
-      return res.status(404).json({ error: 'Category not found' });
+      return res.status(404).json({ error: req.t('error_category_not_found') });
     }
 
     // Оновити послугу
@@ -122,13 +118,13 @@ router.put('/:service_id', async (req, res) => {
     );
 
     if (result.rows.length === 0) {
-      return res.status(404).json({ error: 'Service not found' });
+      return res.status(404).json({ error: req.t('error_service_not_found') });
     }
 
     res.json(result.rows[0]);
   } catch (err) {
     console.error('Error updating service:', err.message);
-    res.status(500).json({ error: 'Failed to update service' });
+    res.status(500).json({ error: req.t('error_update_service_failed') });
   }
 });
 
@@ -144,20 +140,20 @@ router.delete('/:service_id', async (req, res) => {
 
     if (parseInt(certificateCheck.rows[0].count, 10) > 0) {
       return res.status(400).json({
-        error: 'Послуга використовується в сертифікатах. Видалення заборонено. Ви можете змінити статус послуги на "Неактивний".',
+        error: req.t('error_service_in_use'),
       });
     }
 
     const result = await pool.query('DELETE FROM services WHERE service_id = $1 RETURNING *', [service_id]);
 
     if (result.rows.length === 0) {
-      return res.status(404).json({ error: 'Service not found' });
+      return res.status(404).json({ error: req.t('error_service_not_found') });
     }
 
-    res.json({ message: 'Service deleted successfully' });
+    res.json({ message: req.t('success_service_deleted') });
   } catch (err) {
     console.error('Error deleting service:', err.message);
-    res.status(500).json({ error: `Failed to delete service: ${err.message}` });
+    res.status(500).json({ error: req.t('error_delete_service_failed') });
   }
 });
 

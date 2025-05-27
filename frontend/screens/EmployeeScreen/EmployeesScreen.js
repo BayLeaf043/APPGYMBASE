@@ -5,10 +5,13 @@ import  { useState,  useContext,  useCallback } from "react";
 import { useFocusEffect } from '@react-navigation/native';
 import { AuthContext } from '../../AuthContext';
 import styles from './Employee.style';
+import { useTranslation } from 'react-i18next';
 import { fetchUsers, addEmployee, deleteEmployee, editEmployee } from './EmployeeApi';
 
 
 export default function EmployeesScreen() {
+
+  const { t } = useTranslation();
 
   const dismissKeyboard = () => {
     Keyboard.dismiss();
@@ -19,7 +22,7 @@ export default function EmployeesScreen() {
   const [modalVisibleEmployee, setModalVisibleEmployee] = useState(false);
   const [addModalVisibleEmployee, setAddModalVisibleEmployee] = useState(false);
   const [editModalVisibleEmployee, setEditModalVisibleEmployee] = useState(false);
-  const [newEmployee, setNewEmployee] = useState({ name: "", surname: "", status: "Активний", phone: "", email: "", password: "", role: "Працівник", system_id: user?.system_id });
+  const [newEmployee, setNewEmployee] = useState({ name: "", surname: "", status: "active", phone: "", email: "", password: "", role: "employee", system_id: user?.system_id });
   const [selectedEmployee, setSelectedEmployee] = useState(null);
 
   useFocusEffect(
@@ -35,7 +38,7 @@ export default function EmployeesScreen() {
 
   const resetNewEmployee = () => {
     setNewEmployee({
-      name: "", surname: "", status: "Активний", phone: "", email: "", password: "", role: "Працівник", system_id: user?.system_id
+      name: "", surname: "", status: "active", phone: "", email: "", password: "", role: "employee", system_id: user?.system_id
     });
   };
 
@@ -51,15 +54,15 @@ export default function EmployeesScreen() {
   };
 
   const handleAddEmployee = () => {
-    addEmployee(newEmployee, employees, setEmployees, resetNewEmployee, setAddModalVisibleEmployee);
+    addEmployee(newEmployee, employees, setEmployees, resetNewEmployee, setAddModalVisibleEmployee, t);
   };
 
   const handleDeleteEmployee = (user_id) => {
-    deleteEmployee(user_id, employees, setEmployees);
+    deleteEmployee(user_id, employees, setEmployees, t);
   };
 
   const handleEditEmployee = () => {
-    editEmployee(selectedEmployee, employees, setEmployees, setEditModalVisibleEmployee);
+    editEmployee(selectedEmployee, employees, setEmployees, setEditModalVisibleEmployee, t);
   };
 
   return (
@@ -78,18 +81,18 @@ export default function EmployeesScreen() {
 
         {/* Кнопка "Додати" */}
         <TouchableOpacity style={styles.addButton} onPress={() => setAddModalVisibleEmployee(true)}>
-          <Text style={styles.addButtonText}>+ Додати</Text>
+          <Text style={styles.addButtonText}>+ {t('add')}</Text>
         </TouchableOpacity>
         
         <View style={styles.headerRow}>
-          <Text style={[styles.headerText, { flex: 2 }]}>Працівник</Text>
-          <Text style={[styles.headerText, { flex: 3, paddingRight:10 }]}>Статус</Text>
+          <Text style={[styles.headerText, { flex: 2 }]}>{t('employee')}</Text>
+          <Text style={[styles.headerText, { flex: 3, paddingRight:10 }]}>{t('status')}</Text>
         </View>
 
         {/* Список співробітників */}
         {employees.length === 0 ? (
           <View style={{ alignItems: 'center', marginTop: 20 }}>
-            <Text style={{ fontSize: 16, color: 'gray' }}>Немає доступних працівників</Text>
+            <Text style={{ fontSize: 16, color: 'gray' }}>{t('no_employees_available')}</Text>
           </View>
         ) : (     
         <FlatList
@@ -100,7 +103,7 @@ export default function EmployeesScreen() {
             <TouchableOpacity style={[styles.employeeTextContainer, { flex: 2, marginRight: 30 }]} onPress={() => openModalEmployee(item)}>
               <Text style={styles.employeeText}>{item.name} {item.surname}</Text>
             </TouchableOpacity>
-            <Text style={[styles.employeeText, { flex:2, marginRight: 10, color: item.status === "Активний" ? "green" : "red" }]}>{item.status}</Text>
+            <Text style={[styles.employeeText, { flex:2, marginRight: 10, color: item.status === "active" ? "green" : "red" }]}>{t(item.status)}</Text>
             <View style={styles.actionButtonsContainer}>
               <TouchableOpacity style={[styles.editButton, {marginRight: 10}]} onPress={() => openEditModalEmployee(item)}>
                 <Text>✏️</Text>
@@ -121,20 +124,20 @@ export default function EmployeesScreen() {
           <View style={styles.modalBox}>
           {selectedEmployee && (
           <>
-          <Text style={styles.modalTitle}>Інформація про працівника</Text>
+          <Text style={styles.modalTitle}>{t('employee_information')}</Text>
           <Text style={styles.modalText}>{selectedEmployee.name} {selectedEmployee.surname}: {selectedEmployee.role}</Text>
           <Text style={styles.modalText}>
-            Статус:{" "}
-            <Text style={{ color: selectedEmployee.status === "Активний" ? "green" : "red" }}>
-              {selectedEmployee.status}
+            {t('status')}:{" "}
+            <Text style={{ color: selectedEmployee.status === "active" ? "green" : "red" }}>
+              {t(selectedEmployee.status)}
             </Text>
           </Text>
-          <Text style={styles.modalText}>Phone: {selectedEmployee.phone} </Text>
-          <Text style={styles.modalText}>Email: {selectedEmployee.email} </Text>
+          <Text style={styles.modalText}>{t('phone')}: {selectedEmployee.phone} </Text>
+          <Text style={styles.modalText}>{t('email')}: {selectedEmployee.email} </Text>
           </>
           )}
           <TouchableOpacity style={styles.cancelButton} onPress={() => setModalVisibleEmployee(false)}>
-            <Text style={styles.cancelButtonText}>Закрити</Text>
+            <Text style={styles.cancelButtonText}>{t('close')}</Text>
           </TouchableOpacity>
           </View>
         </View>
@@ -144,22 +147,22 @@ export default function EmployeesScreen() {
       <Modal visible={addModalVisibleEmployee} transparent animationType="slide">
         <View style={styles.modalContainer}>
           <View style={styles.modalBox}>
-            <Text style={styles.modalTitle}>Додати працівника</Text>
+            <Text style={styles.modalTitle}>{t('add_employee')}</Text>
             <TextInput
               style={styles.input}
-              placeholder="Ім'я"
+              placeholder={t('name')}
               value={newEmployee.name}
               onChangeText={(text) => setNewEmployee({ ...newEmployee, name: text })}
             />
             <TextInput
               style={styles.input}
-              placeholder="Прізвище"
+              placeholder={t('surname')}
               value={newEmployee.surname}
               onChangeText={(text) => setNewEmployee({ ...newEmployee, surname: text })}
             />
             <TextInput
             style={styles.input}
-            placeholder="Телефон"
+            placeholder={t('phone')}
             value={newEmployee.phone}
             onChangeText={(text) => {
               if (!isNaN(text) || text === '') {
@@ -169,21 +172,21 @@ export default function EmployeesScreen() {
             />
             <TextInput
               style={styles.input}
-              placeholder="Пошта"
+              placeholder={t('email')}
               value={newEmployee.email}
               onChangeText={(text) => setNewEmployee({ ...newEmployee, email: text })}
             />
             <TextInput
               style={styles.input}
-              placeholder="Пароль"
+              placeholder={t('password')}
               value={newEmployee.password}
               onChangeText={(text) => setNewEmployee({ ...newEmployee, password: text })}
             />
             <TouchableOpacity style={styles.saveButton} onPress={handleAddEmployee}>
-              <Text style={styles.saveButtonText}>Додати</Text>
+              <Text style={styles.saveButtonText}>{t('add')}</Text>
             </TouchableOpacity>
             <TouchableOpacity style={styles.cancelButton} onPress={closeAddModal}>
-              <Text style={styles.cancelButtonText}>Скасувати</Text>
+              <Text style={styles.cancelButtonText}>{t('cancel')}</Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -194,22 +197,22 @@ export default function EmployeesScreen() {
       <Modal visible={editModalVisibleEmployee} transparent animationType="slide">
         <View style={styles.modalContainer}>
           <View style={styles.modalBox}>
-            <Text style={styles.modalTitle}>Редагувати працівника</Text>
+            <Text style={styles.modalTitle}>{t('edit_employee')}</Text>
             <TextInput
               style={styles.input}
-              placeholder="Ім'я"
+              placeholder={t('name')}
               value={selectedEmployee?.name}
               onChangeText={(text) => setSelectedEmployee({ ...selectedEmployee, name: text })}
             />
             <TextInput
               style={styles.input}
-              placeholder="Прізвище"
+              placeholder={t('surname')}
               value={selectedEmployee?.surname}
               onChangeText={(text) => setSelectedEmployee({ ...selectedEmployee, surname: text })}
             />
             <TextInput
               style={styles.input}
-              placeholder="Телефон"
+              placeholder={t('phone')}
               keyboardType="phone-pad"
               value={selectedEmployee?.phone}
               onChangeText={(text) => {
@@ -219,36 +222,36 @@ export default function EmployeesScreen() {
             />
             <TextInput
               style={styles.input}
-              placeholder="Пошта"
+              placeholder={t('email')}
               keyboardType="email-address"
               value={selectedEmployee?.email}
               onChangeText={(text) => setSelectedEmployee({ ...selectedEmployee, email: text })}
             />
             <TouchableOpacity
-              style={[styles.toggleButton, {backgroundColor: selectedEmployee?.status === "Активний" ? "green" : "red"}]}
+              style={[styles.toggleButton, {backgroundColor: selectedEmployee?.status === "active" ? "green" : "red"}]}
               onPress={() =>
                 setSelectedEmployee({
                 ...selectedEmployee,
-                status: selectedEmployee.status === "Активний" ? "Неактивний" : "Активний",
+                status: selectedEmployee.status === "active" ? "inactive" : "active",
                 })
               }
               >
-              <Text style={styles.toggleButtonText}>{selectedEmployee?.status}</Text>
+              <Text style={styles.toggleButtonText}>{t(selectedEmployee?.status)}</Text>
             </TouchableOpacity>
             <TouchableOpacity
-              style={[styles.toggleButton, {backgroundColor: selectedEmployee?.role === "Працівник" ? "green" : "blue"}]}
+              style={[styles.toggleButton, {backgroundColor: selectedEmployee?.role === "employee" ? "green" : "blue"}]}
               onPress={() =>
                 setSelectedEmployee({
                 ...selectedEmployee,
-                role: selectedEmployee.role === "Працівник" ? "Адміністратор" : "Працівник",
+                role: selectedEmployee.role === "employee" ? "admin" : "employee",
                 })
               }
               >
-              <Text style={styles.toggleButtonText}>{selectedEmployee?.role}</Text>
+              <Text style={styles.toggleButtonText}>{t(selectedEmployee?.role)}</Text>
             </TouchableOpacity>
             <TextInput
               style={styles.input}
-              placeholder="Новий пароль"
+              placeholder={t('new_password')}
               value={selectedEmployee?.password || ''} // Якщо пароль не передано, поле буде порожнім
               onChangeText={(text) => {
                 setSelectedEmployee((prev) => ({
@@ -260,10 +263,10 @@ export default function EmployeesScreen() {
 
 
             <TouchableOpacity style={styles.saveButton} onPress={handleEditEmployee}>
-              <Text style={styles.saveButtonText}>Зберегти</Text>
+              <Text style={styles.saveButtonText}>{t('save')}</Text>
             </TouchableOpacity>
             <TouchableOpacity style={styles.cancelButton} onPress={() => setEditModalVisibleEmployee(false)}>
-              <Text style={styles.cancelButtonText}>Скасувати</Text>
+              <Text style={styles.cancelButtonText}>{t('cancel')}</Text>
             </TouchableOpacity>
           </View>
         </View>

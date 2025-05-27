@@ -8,10 +8,10 @@ router.get('/', async (req, res) => {
     const { system_id, startDate, endDate } = req.query;
 
     if (!system_id) {
-      return res.status(400).json({ error: 'system_id є обов’язковим' });
+      return res.status(400).json({ error: req.t('error_system_id_required') });
     }
     if (!startDate || !endDate) {
-      return res.status(400).json({ error: 'startDate та endDate є обов’язковими' });
+      return res.status(400).json({ error: req.t('error_dates_required') });
     }
 
     const result = await pool.query(
@@ -26,7 +26,7 @@ router.get('/', async (req, res) => {
     res.json(result.rows);
   } catch (err) {
     console.error('Error fetching salary records:', err.message);
-    res.status(500).json({ error: 'Failed to fetch salary records' });
+    res.status(500).json({ error: req.t('error_fetch_salary_records_failed') });
   }
 });
 
@@ -36,10 +36,10 @@ router.get('/report', async (req, res) => {
     const { user_id, startDate, endDate } = req.query;
 
     if (!user_id) {
-      return res.status(400).json({ error: 'user_id є обов’язковим' });
+      return res.status(400).json({ error: req.t('error_user_id_required') });
     }
     if (!startDate || !endDate) {
-      return res.status(400).json({ error: 'startDate та endDate є обов’язковими' });
+      return res.status(400).json({ error: req.t('error_dates_required') });
     }
 
     const result = await pool.query(
@@ -73,13 +73,8 @@ router.get('/report', async (req, res) => {
     res.json(result.rows);
   } catch (err) {
     console.error('Error fetching salary report:', err.message);
-    res.status(500).json({ error: 'Failed to fetch salary report' });
+    res.status(500).json({ error: req.t('error_fetch_salary_report_failed') });
   }
 });
-
-
-
-
-
 
 module.exports = router;

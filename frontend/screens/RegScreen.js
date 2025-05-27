@@ -7,13 +7,16 @@ import React, { useContext, useState } from 'react';
 import Svg, { Path } from 'react-native-svg';
 import { AuthContext } from '../AuthContext';
 import { BASE_URL } from '../config';
+import { useTranslation } from 'react-i18next';
 import { Alert } from 'react-native';
+import i18n from '../i18n'; // Імпортуємо i18n для використання мови
 
 const { height, width } = Dimensions.get('window');
 
 export default function RegScreen() {
   const navigation = useNavigation();
   const { login } = useContext(AuthContext);
+  const { t } = useTranslation();
   const [activeTab, setActiveTab] = useState('register');
   const [formData, setFormData] = useState({
     surname: '',
@@ -30,13 +33,16 @@ export default function RegScreen() {
 
   const handleRegister = () => {
     if (formData.password !== formData.confirmPassword) {
-      alert('Паролі не співпадають');
+      Alert.alert(t('passwords_do_not_match'));
       return;
     }
   
     fetch(`${BASE_URL}/register`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 
+        'Content-Type': 'application/json',
+        'Accept-Language': i18n.language,
+      },
       body: JSON.stringify({
         surname: formData.surname,
         name: formData.name,
@@ -48,20 +54,22 @@ export default function RegScreen() {
     .then((response) => response.json())
     .then((data) => {
       if (data.success) {
-        Alert.alert('Реєстрація успішна!');
+        Alert.alert(t('registration_successful'));
         setActiveTab('login'); // Перехід на авторизацію
       } else {
-        Alert.alert('Помилка реєстрації', data.error || 'Помилка реєстрації');
+        Alert.alert(t('registration_error'), data.error);
       }
     })
-    .catch((error) => console.error('Помилка реєстрації:', error));
+    .catch((error) => console.error('registration_error', error));
   };
 
 
   const handleLogin = () => {
     fetch(`${BASE_URL}/login`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 'Content-Type': 'application/json',
+        'Accept-Language': i18n.language  // Додаємо заголовок для мови
+      },
       body: JSON.stringify({
         email: loginData.email,
         password: loginData.password,
@@ -74,12 +82,12 @@ export default function RegScreen() {
           token: data.token,
           user: data.user,
         });
-        Alert.alert(`Вітаємо, ${data.user.surname} ${data.user.name}!`);
+        Alert.alert(`${t('welcome')}, ${data.user.surname} ${data.user.name}!`);
       } else {
-        Alert.alert('Помилка авторизації', data.error || 'Невірний email або пароль');
+        Alert.alert(t('login_error'), data.error || t('invalid_email_or_password'));
       }
     })
-    .catch((error) => console.error('Помилка авторизації:', error));
+    .catch((error) => console.error('login_error', error));
   };
   
   const dismissKeyboard = () => {
@@ -102,13 +110,13 @@ export default function RegScreen() {
       <TouchableOpacity
         style={[styles.tabButton, activeTab === 'register' && styles.activeTab]}
         onPress={() => setActiveTab('register')}>
-        <Text style={[styles.tabText, activeTab === 'register' && styles.activeText]}>Sign up</Text>
+        <Text style={[styles.tabText, activeTab === 'register' && styles.activeText]}>{t('sign_up')}</Text>
       </TouchableOpacity>
 
       <TouchableOpacity
         style={[styles.tabButton, activeTab === 'login' && styles.activeTab]}
         onPress={() => setActiveTab('login')}>
-        <Text style={[styles.tabText, activeTab === 'login' && styles.activeText]}>Sign in</Text>
+        <Text style={[styles.tabText, activeTab === 'login' && styles.activeText]}>{t('sign_in')}</Text>
       </TouchableOpacity>
     </View>
 
@@ -116,40 +124,40 @@ export default function RegScreen() {
       {activeTab === 'register' ? (
       <>
       <TextInput
-        placeholder="Surname"
+        placeholder={t('surname')}
         style={styles.input}
         value={formData.surname}
         onChangeText={(text) => setFormData({ ...formData, surname: text })}
       />
       <TextInput
-        placeholder="Name"
+        placeholder={t('name')}
         style={styles.input}
         value={formData.name}
         onChangeText={(text) => setFormData({ ...formData, name: text })}
       />
       <TextInput
-        placeholder="Email"
+        placeholder={t('email')}
         style={styles.input}
         keyboardType="email-address"
         value={formData.email}
         onChangeText={(text) => setFormData({ ...formData, email: text })}
       />
       <TextInput
-        placeholder="Phone"
+        placeholder={t('phone')}
         style={styles.input}
         keyboardType="phone-pad"
         value={formData.phone}
         onChangeText={(text) => setFormData({ ...formData, phone: text })}
       />
       <TextInput
-        placeholder="Password"
+        placeholder={t('password')}
         style={styles.input}
         secureTextEntry={true}
         value={formData.password}
         onChangeText={(text) => setFormData({ ...formData, password: text })}
       />
       <TextInput
-        placeholder="Confirm Password"
+        placeholder={t('confirm_password')}
         style={styles.input}
         secureTextEntry={true}
         value={formData.confirmPassword}
@@ -157,14 +165,14 @@ export default function RegScreen() {
       />
       </>  ) : ( <>
       <TextInput
-        placeholder="Email"
+        placeholder={t('email')}
         style={styles.input}
         keyboardType="email-address"
         value={loginData.email}
         onChangeText={(text) => setLoginData({ ...loginData, email: text })}
       />
       <TextInput
-        placeholder="Password"
+        placeholder={t('password')}
         style={styles.input}
         secureTextEntry={true}
         value={loginData.password}
@@ -232,7 +240,7 @@ const styles = StyleSheet.create({
   },
   tabText: {
     textAlign: 'center',
-    fontSize: 16,
+    fontSize: 14,
   },
   activeText: {
     color: 'white',
@@ -253,6 +261,6 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     borderWidth: 1,
     borderColor: '#ccc',
-    fontSize: 16,
+    fontSize: 14,
   },
 });

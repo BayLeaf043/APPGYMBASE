@@ -1,42 +1,56 @@
 import { BASE_URL } from '../../config';
 import { Alert } from 'react-native';
+import i18n from '../../i18n';
 
 export const fetchCertificates = (system_id, setCertificates) => {
     if (system_id) {
-        fetch(`${BASE_URL}/certificates?system_id=${system_id}`)
+        fetch(`${BASE_URL}/certificates?system_id=${system_id}`, {
+            method: 'GET',
+            headers: {
+                'Accept-Language': i18n.language,
+            },
+        }) 
         .then((response) => response.json())
         .then((data) => setCertificates(data))
         .catch((error) => {
-            console.error('Помилка завантаження сертифікатів:', error);
-            Alert.alert('Помилка', 'Не вдалося завантажити сертифікати');
+            console.error('Error fetching certificates:', error);
         });
     } else {
-        console.error('system_id користувача не знайдено');
+        console.error('User system_id not found');
     }
 };
 
 
 export const fetchServices = (system_id, setServices) => {
     if (system_id) {
-        fetch(`${BASE_URL}/services?system_id=${system_id}`)
+        fetch(`${BASE_URL}/services?system_id=${system_id}`, {
+            method: 'GET',
+            headers: {
+                'Accept-Language': i18n.language,
+            },
+        }) 
         .then((response) => response.json())
         .then((data) => {
             setServices(
-                data.filter((service) => service.status === "Активний"));
+                data.filter((service) => service.status === "active"));
             })
             .catch((error) => {
-                console.error('Помилка завантаження послуг:', error);
-                Alert.alert('Помилка', 'Не вдалося завантажити послуги');
+                console.error('Error fetching services:', error);
             });
     } else {
-        console.error('system_id користувача не знайдено');
+        console.error('User system_id not found');
     }
 };
 
 
 export const fetchClients = (system_id, setClients) => {
     if (system_id) {
-        fetch(`${BASE_URL}/clients?system_id=${system_id}`)
+        fetch(`${BASE_URL}/clients?system_id=${system_id}`, {
+            method: 'GET',
+            headers: {
+                'Accept-Language': i18n.language,
+            },
+        }) 
         .then((response) => response.json())
         .then((data) => {
             setClients(
@@ -47,73 +61,72 @@ export const fetchClients = (system_id, setClients) => {
             );
         })
         .catch((error) => {
-            console.error('Помилка завантаження клієнтів:', error);
-            Alert.alert('Помилка', 'Не вдалося завантажити клієнтів');
+            console.error('Error fetching clients:', error);
         });
     } else {
-        console.error('system_id користувача не знайдено');
+        console.error('User system_id not found');
     }
 };
 
 
-export const addCertificate = (newCertificate, certificates, setCertificates, resetNewCertificate, setAddModalVisibleCertificate) => {
+export const addCertificate = (newCertificate, certificates, setCertificates, resetNewCertificate, setAddModalVisibleCertificate, t) => {
     const certificateData = {
         ...newCertificate, 
         used_sessions: 0, 
-        status: "Активний", 
+        status: "active", 
         comment: newCertificate.comment?.trim() || "-",
     };
     fetch(`${BASE_URL}/certificates`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', 'Accept-Language': i18n.language },
         body: JSON.stringify(certificateData)
     })
     .then(response => response.json())
     .then(data => {
         if(data.error){
-            console.log('data:', data);
-            Alert.alert('Помилка', data.error || 'Не вдалося додати сертифікат');
+            console.log('Error adding certificate:', data.error);
+            Alert.alert(t('error'), data.error);
         } else {
             setCertificates([...certificates, data]);
             resetNewCertificate();
             setAddModalVisibleCertificate(false);
-            Alert.alert('Успіх', 'Сертифікат успішно додано');
-       }
+            Alert.alert(t('success'), t('certificate_added_successfully'));
+        }
     })
-    .catch((error) => console.error('Помилка додавання клієнта:', error));
+    .catch((error) => console.error('Error adding certificate:', error));
 };
 
 
-export const deleteCertificate = (certificate_id, certificates, setCertificates) => {
-    fetch(`${BASE_URL}/certificates/${certificate_id}`, { method: 'DELETE' })
+export const deleteCertificate = (certificate_id, certificates, setCertificates, t) => {
+    fetch(`${BASE_URL}/certificates/${certificate_id}`, { method: 'DELETE', headers: { 'Accept-Language': i18n.language } })
     .then((response) => response.json())
     .then((data) => {
         if(data.error){
-            Alert.alert('Помилка', data.error);
+            Alert.alert(t('error'), data.error);
         } else {
             setCertificates(certificates.filter((certificate) => certificate.certificate_id !== certificate_id));
-            Alert.alert('Успіх', 'Сертифікат успішно видалено');
+            Alert.alert(t('success'), t('certificate_deleted_successfully'));
        }
     })
-    .catch((error) => console.error('Помилка видалення сертифіката:', error));
+    .catch((error) => console.error('Error deleting certificate:', error));
 };
 
 
-export const editCertificate = (updatedCertificate, certificates, setCertificates, setEditModalVisibleCertificate) => {
+export const editCertificate = (updatedCertificate, certificates, setCertificates, setEditModalVisibleCertificate, t) => {
     fetch(`${BASE_URL}/certificates/${updatedCertificate.certificate_id}`, {
         method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', 'Accept-Language': i18n.language },
         body: JSON.stringify(updatedCertificate),
     })
     .then((response) => response.json())
     .then((data) => {
         if(data.error) {
-            Alert.alert('Помилка', data.error || 'Не вдалося зберегти зміни');
+            Alert.alert(t('error'), data.error);
         } else {
             setCertificates( certificates.map((certificate) => certificate.certificate_id === updatedCertificate.certificate_id ? data : certificate ));
             setEditModalVisibleCertificate(false);
-            Alert.alert('Успіх', 'Сертифікат успішно оновлено');
+            Alert.alert(t('success'), t('certificate_updated_successfully'));
         }    
     })
-    .catch((error) => console.error('Помилка оновлення сертифіката:', error));
+    .catch((error) => console.error('Error updating certificate:', error));
 };

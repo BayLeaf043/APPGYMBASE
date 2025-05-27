@@ -1,23 +1,33 @@
 import { BASE_URL } from '../../config';
 import { Alert } from 'react-native';
+import i18n from '../../i18n';
 
 export const fetchFinances = (system_id, setFinances) => {
     if (system_id) {
-        fetch(`${BASE_URL}/finances?system_id=${system_id}`) 
+        fetch(`${BASE_URL}/finances?system_id=${system_id}`, {
+            method: 'GET',
+            headers: {
+                'Accept-Language': i18n.language,
+            },
+        })  
         .then((response) => response.json())
         .then((data) => setFinances(data))
         .catch((error) => {
-            console.error('Помилка завантаження транзакцій:', error);
-            Alert.alert('Помилка', 'Не вдалося завантажити послуги');
+            console.error('Error loading transactions:', error);
         });
     } else {
-        console.error('system_id користувача не знайдено');
-    } 
+        console.error('User system_id not found');
+    }
 };
 
 export const fetchClients = (system_id, setClients) => {
     if (system_id) {
-        fetch(`${BASE_URL}/clients?system_id=${system_id}`)
+        fetch(`${BASE_URL}/clients?system_id=${system_id}`, {
+            method: 'GET',
+            headers: {
+                'Accept-Language': i18n.language,
+            },
+        }) 
         .then((response) => response.json())
         .then((data) => {
             setClients(
@@ -28,18 +38,22 @@ export const fetchClients = (system_id, setClients) => {
             );
         })
         .catch((error) => {
-            console.error('Помилка завантаження клієнтів:', error);
-            Alert.alert('Помилка', 'Не вдалося завантажити клієнтів');
+            console.error('Error loading clients:', error);
         });
     } else {
-        console.error('system_id користувача не знайдено');
+        console.error('User system_id not found');
     }
 };
 
 
 export const fetchBalances = (system_id, setBalances) => {
     if (system_id) {
-        fetch(`${BASE_URL}/finances/balance?system_id=${system_id}`)
+        fetch(`${BASE_URL}/finances/balance?system_id=${system_id}`, {
+            method: 'GET',
+            headers: {
+                'Accept-Language': i18n.language,
+            },
+        }) 
         .then((response) => response.json())
         .then((data) => {
             const obj = {};
@@ -49,14 +63,13 @@ export const fetchBalances = (system_id, setBalances) => {
             setBalances(obj);
         })
         .catch((error) => {
-            console.error('Помилка завантаження балансу:', error);
-            Alert.alert('Помилка', 'Не вдалося завантажити баланс');
+            console.error('Error loading balance:', error);
       });
   }
 };
 
 
- export const addFinances = (newFinances, balances, finances, setFinances, fetchBalances, resetNewFinances, setAddModalVisibleFinances) => {
+ export const addFinances = (newFinances, balances, finances, setFinances, fetchBalances, resetNewFinances, setAddModalVisibleFinances, t) => {
 
     if (newFinances.payment_method && newFinances.price < 0) {
         const method = newFinances.payment_method;
@@ -64,30 +77,29 @@ export const fetchBalances = (system_id, setBalances) => {
         const currentBalance = balances[method] || 0;
         if (absAmount > currentBalance) {
             Alert.alert(
-                'Недостатньо коштів',
-                `На рахунку "${method}" недостатньо коштів для списання!`
+                t('Not_enough_funds'),
+                t(`in "${t(method)}" insufficient_funds`)
             );
         return;
         }
     }
     fetch(`${BASE_URL}/finances`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', 'Accept-Language': i18n.language },
         body: JSON.stringify(newFinances)
     })
     .then(response => response.json())
     .then(data => {
         if(data.error){
-            console.log('data:', data);
-            Alert.alert('Помилка', data.error || 'Не вдалося додати транзакцію');
+            Alert.alert(t('error'), data.error);
         } else {
             setFinances([...finances, data]);
             fetchBalances();
             resetNewFinances();
             setAddModalVisibleFinances(false);
-            Alert.alert('Успіх', 'Транзакцію успішно додано');
+            Alert.alert(t('success'), t('transaction_added_successfully'));
           }
         })
-    .catch((error) => console.error('Помилка додавання транзакції:', error));
+    .catch((error) => console.error('Error adding transaction:', error));
 };
 

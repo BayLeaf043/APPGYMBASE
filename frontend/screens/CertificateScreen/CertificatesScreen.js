@@ -7,10 +7,13 @@ import { useState, useContext,  useCallback } from "react";
 import { useFocusEffect } from '@react-navigation/native';
 import { AuthContext } from '../../AuthContext';
 import styles from './Certificate.style';
+import { useTranslation } from 'react-i18next';
 import { fetchCertificates, fetchServices, fetchClients, addCertificate, deleteCertificate, editCertificate } from './CertificateApi';
 
 
 export default function CertificatesScreen() {
+
+  const { t } = useTranslation();
 
   const dismissKeyboard = () => {
     Keyboard.dismiss();
@@ -68,7 +71,7 @@ export default function CertificatesScreen() {
   const [addModalVisibleCertificate, setAddModalVisibleCertificate] = useState(false);
   const [editModalVisibleCertificate, setEditModalVisibleCertificate] = useState(false);
   const [newCertificate, setNewCertificate] = useState({ client_id: null, service_id: null, valid_from: "", valid_to: "",
-    total_sessions: "", used_sessions: "", price: "", status: "Активний", payment_method: "Готівка", comment: "", 
+    total_sessions: "", used_sessions: "", price: "", status: "active", payment_method: "cash", comment: "", 
       system_id: user?.system_id });
   const [selectedCertificate, setSelectedCertificate] = useState(null);
 
@@ -95,8 +98,8 @@ export default function CertificatesScreen() {
       total_sessions: "",
       used_sessions: "",
       price: "",
-      status: "Активний",
-      payment_method: "Готівка",
+      status: "active",
+      payment_method: "cash",
       comment: "",
       system_id: user?.system_id,
     });
@@ -113,15 +116,15 @@ export default function CertificatesScreen() {
   };
 
   const handleAddCertificate = () => {
-    addCertificate(newCertificate, certificates, setCertificates, resetNewCertificate, setAddModalVisibleCertificate);
+    addCertificate(newCertificate, certificates, setCertificates, resetNewCertificate, setAddModalVisibleCertificate, t);
   };
 
   const handleDeleteCertificate = (certificate_id) => {
-    deleteCertificate(certificate_id, certificates, setCertificates);
+    deleteCertificate(certificate_id, certificates, setCertificates, t);
   };
 
   const handleEditCertificate = () => {
-    editCertificate(selectedCertificate, certificates, setCertificates, setEditModalVisibleCertificate);
+    editCertificate(selectedCertificate, certificates, setCertificates, setEditModalVisibleCertificate, t);
   };
 
   const sortCertificates = (certificates) => {
@@ -144,17 +147,17 @@ export default function CertificatesScreen() {
       <View style={styles.box}>
 
         <TouchableOpacity style={styles.addButton} onPress={() => setAddModalVisibleCertificate(true)}>
-          <Text style={styles.addButtonText}>+ Додати</Text>
+          <Text style={styles.addButtonText}>+ {t('add')}</Text>
         </TouchableOpacity>
 
         <View style={styles.headerRow}>
-          <Text style={[styles.headerText, { flex: 2 }]}>Дата</Text>
-          <Text style={[styles.headerText, { flex: 4, paddingRight:48 }]}>Клієнт</Text>
+          <Text style={[styles.headerText, { flex: 2 }]}>{t('date')}</Text>
+          <Text style={[styles.headerText, { flex: 4, paddingRight:48 }]}>{t('client')}</Text>
         </View>
 
         {certificates.length === 0 ? (
           <View style={{ alignItems: 'center', marginTop: 20 }}>
-            <Text style={{ fontSize: 16, color: 'gray' }}>Немає доступних сертифікатів</Text>
+            <Text style={{ fontSize: 16, color: 'gray' }}>{t('no_certificates_available')}</Text>
           </View>
           ) : (
           <FlatList
@@ -165,7 +168,7 @@ export default function CertificatesScreen() {
             <View style={styles.certificateItem}>
 
               <TouchableOpacity style={[styles.certificateTextContainer, { flex: 2, marginRight: 10 }]} onPress={() => openModalCertificate(item)}>
-                <Text style={styles.certificateText}>{formatDateTimeToLocal(item.created_at)}</Text>
+                <Text style={[styles.certificateText, { color: item.status === 'active' ? 'green' : 'red' }]}>{formatDateTimeToLocal(item.created_at)}</Text>
               </TouchableOpacity>
 
               <Text style={[styles.certificateText, {flex:3, marginRight: 10}]}>
@@ -192,32 +195,32 @@ export default function CertificatesScreen() {
           <View style={styles.modalBox}>
           {selectedCertificate && (
           <>
-          <Text style={styles.modalTitle}>Сертифікат від {formatDateTimeToLocal(selectedCertificate.created_at)}</Text>
-          <Text style={styles.modalText}>Клієнт: {clients.find((client) => client.client_id === selectedCertificate.client_id)?.fullName || ""}</Text>
+          <Text style={styles.modalTitle}>{t('certificate')} {formatDateTimeToLocal(selectedCertificate.created_at)}</Text>
+          <Text style={styles.modalText}>{t('client')}: {clients.find((client) => client.client_id === selectedCertificate.client_id)?.fullName || ""}</Text>
           <Text style={styles.modalText}>
-            Статус:{" "}
-            <Text style={{ color: selectedCertificate.status === "Активний" ? "green" : "red" }}>
-              {selectedCertificate.status}
+            {t('status')}:{" "}
+            <Text style={{ color: selectedCertificate.status === "active" ? "green" : "red" }}>
+              {t(selectedCertificate.status)}
             </Text>
           </Text>
-          <Text style={styles.modalText}>Послуга: {services.find((service) => service.service_id === selectedCertificate.service_id)?.name || ""}</Text>
-          <Text style={styles.modalText}>Кількість сеансів: {selectedCertificate.total_sessions}</Text>
-          <Text style={styles.modalText}>Використано сеансів: {selectedCertificate.used_sessions}</Text>
-          <Text style={styles.modalText}>Ціна: {selectedCertificate.price} грн</Text>
-          <Text style={styles.modalText}>Спосіб оплати: {selectedCertificate.payment_method}</Text>
-          <Text style={styles.modalText}>Дата початку: {formatDateToLocal(selectedCertificate.valid_from)}</Text>
+          <Text style={styles.modalText}>{t('service')}: {services.find((service) => service.service_id === selectedCertificate.service_id)?.name || ""}</Text>
+          <Text style={styles.modalText}>{t('total_sessions')}: {selectedCertificate.total_sessions}</Text>
+          <Text style={styles.modalText}>{t('used_sessions')}: {selectedCertificate.used_sessions}</Text>
+          <Text style={styles.modalText}>{t('price')}: {selectedCertificate.price} {t('currency')}</Text>
+          <Text style={styles.modalText}>{t('payment_method')}: {t(selectedCertificate.payment_method)}</Text>
+          <Text style={styles.modalText}>{t('valid_from')}: {formatDateToLocal(selectedCertificate.valid_from)}</Text>
           <Text style={styles.modalText}>
-            Дата закінчення:{" "}
+            {t('valid_to')}:{" "}
             <Text style={{ color: new Date(selectedCertificate.valid_to) < new Date() ? 'red' : 'black' }}>
               {formatDateToLocal(selectedCertificate.valid_to)}
             </Text>
           </Text>
-          <Text style={styles.modalText}>Коментар: {selectedCertificate.comment}</Text>
-          
+          <Text style={styles.modalText}>{t('comment')}: {selectedCertificate.comment}</Text>
+
           </>
           )}
           <TouchableOpacity style={styles.cancelButton} onPress={() => setModalVisibleCertificate(false)}>
-            <Text style={styles.cancelButtonText}>Закрити</Text>
+            <Text style={styles.cancelButtonText}>{t('close')}</Text>
           </TouchableOpacity>
           </View>
         </View>
@@ -230,7 +233,7 @@ export default function CertificatesScreen() {
       
         <View style={[styles.modalContainer, { justifyContent: "flex-start", paddingTop: 20, }]}>
           <View style={styles.modalBox}>
-            <Text style={styles.modalTitle}>Додати сертифікат</Text>
+            <Text style={styles.modalTitle}>{t('add_certificate')}</Text>
 
             {/* Вибір клієнта */}
             <Dropdown
@@ -246,7 +249,7 @@ export default function CertificatesScreen() {
                 }))}
                 labelField="label"
                 valueField="value"
-                placeholder="Оберіть клієнта"
+                placeholder={t('select_client')}
                 value={newCertificate.client_id}
                 onChange={(item) => {
                   setNewCertificate({
@@ -255,7 +258,7 @@ export default function CertificatesScreen() {
                   });
                 }}
                 search
-                searchPlaceholder="Пошук клієнта..."
+                searchPlaceholder={t('search_client')}
                 maxHeight={200} 
                 
             />
@@ -269,7 +272,7 @@ export default function CertificatesScreen() {
                 }))}
                 labelField="label"
                 valueField="value"
-                placeholder="Оберіть послугу"
+                placeholder={t('select_service')}
                 value={newCertificate.service_id}
                 onChange={(item) => {
                   const service = services.find((s) => s.service_id === item.value);
@@ -281,7 +284,7 @@ export default function CertificatesScreen() {
                   });
                 }}
                 search
-                searchPlaceholder="Пошук послуги..."
+                searchPlaceholder={t('search_service')}
                 maxHeight={200} 
                
                 containerStyle={styles.dropdownContainer}
@@ -293,7 +296,7 @@ export default function CertificatesScreen() {
 
             <TextInput
             style={[styles.input, { flex: 1, }]} 
-            placeholder="К-сть"
+            placeholder={t('total')}
             value={newCertificate.total_sessions?.toString() || ""}
             keyboardType="numeric"
             onChangeText={(text) =>
@@ -305,7 +308,7 @@ export default function CertificatesScreen() {
         <View style={{ flexDirection: "row", alignItems: "center", }}>
           <TextInput
             style={[styles.input, { flex: 1, marginRight: 10 }]}
-            placeholder="Ціна"
+            placeholder={t('price')}
             value={newCertificate.price?.toString() || ""}  
             keyboardType="numeric"
             onChangeText={(text) => {
@@ -318,16 +321,16 @@ export default function CertificatesScreen() {
           />
 
           <TouchableOpacity
-            style={[styles.toggleButton, {flex: 1, backgroundColor: newCertificate?.payment_method === "Готівка" ? "green" : "blue"}]}
+            style={[styles.toggleButton, {flex: 1, backgroundColor: newCertificate?.payment_method === "cash" ? "green" : "blue"}]}
             onPress={() =>
               setNewCertificate({
                 ...newCertificate,
-                payment_method: newCertificate.payment_method === "Готівка" ? "Картка" : "Готівка",
+                payment_method: newCertificate.payment_method === "cash" ? "card" : "cash",
               })
             }
           >
             <Text style={styles.toggleButtonText}>
-              {newCertificate.payment_method === "Готівка" ? "Готівка" : "Картка"}
+              {t(newCertificate.payment_method)}
             </Text>
           </TouchableOpacity>
         </View>
@@ -335,7 +338,7 @@ export default function CertificatesScreen() {
         <View style={{ flexDirection: "row", alignItems: "center" }}>
           <TouchableOpacity onPress={showStartDatePicker} style={[styles.datePickerButton, { flex: 1, marginRight: 10 }]}>
             <Text style={styles.datePickerButtonText}>
-              {formatDateToLocal(newCertificate.valid_from) || "Дата початку"}
+              {formatDateToLocal(newCertificate.valid_from) || t('valid_from')}
             </Text>
           </TouchableOpacity>
           <DateTimePickerModal
@@ -367,7 +370,7 @@ export default function CertificatesScreen() {
 
           <TouchableOpacity onPress={showEndDatePicker} style={[styles.datePickerButton, { flex: 1 }]}>
             <Text style={styles.datePickerButtonText}>
-              {formatDateToLocal(newCertificate.valid_to) || "Дата кінця"}
+              {formatDateToLocal(newCertificate.valid_to) || t('valid_to')}
             </Text>
           </TouchableOpacity>
           <DateTimePickerModal
@@ -399,20 +402,19 @@ export default function CertificatesScreen() {
 
         <TextInput
         style={styles.input}
-        placeholder="Коментар"
+        placeholder={t('comment')}
         value={newCertificate.comment || ""}
         onChangeText={(text) =>
           setNewCertificate({ ...newCertificate, comment: text })
-          }
-        />
-     
-                  
-            <TouchableOpacity style={styles.saveButton} onPress={handleAddCertificate}>
-              <Text style={styles.saveButtonText}>Зберегти</Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.cancelButton} onPress={closeAddModal}>
-              <Text style={styles.cancelButtonText}>Скасувати</Text>
-            </TouchableOpacity>
+        }
+      />
+
+      <TouchableOpacity style={styles.saveButton} onPress={handleAddCertificate}>
+        <Text style={styles.saveButtonText}>{t('save')}</Text>
+      </TouchableOpacity>
+      <TouchableOpacity style={styles.cancelButton} onPress={closeAddModal}>
+        <Text style={styles.cancelButtonText}>{t('cancel')}</Text>
+      </TouchableOpacity>
           </View>
         </View>
         
@@ -424,23 +426,23 @@ export default function CertificatesScreen() {
       <Modal visible={editModalVisibleCertificate} transparent animationType="slide">
         <View style={styles.modalContainer}>
           <View style={styles.modalBox}>
-            <Text style={styles.modalTitle}>Подовжити сертифікат</Text>
-            <Text style={styles.modalText}>Сертифікат від {formatDateTimeToLocal(selectedCertificate?.created_at)}</Text>
-            <Text style={styles.modalText}>Клієнт: {clients.find((client) => client.client_id === selectedCertificate?.client_id)?.fullName || ""}</Text>
-            <Text style={styles.modalText}>Послуга: {services.find((service) => service.service_id === selectedCertificate?.service_id)?.name || ""}</Text>
-            <Text style={styles.modalText}>Використано сеансів: {selectedCertificate?.used_sessions} / {selectedCertificate?.total_sessions} </Text>
+            <Text style={styles.modalTitle}>{t('edit_certificate')}</Text>
+            <Text style={styles.modalText}>{t('certificate')} {formatDateTimeToLocal(selectedCertificate?.created_at)}</Text>
+            <Text style={styles.modalText}>{t('client')} {clients.find((client) => client.client_id === selectedCertificate?.client_id)?.fullName || ""}</Text>
+            <Text style={styles.modalText}>{t('service')} {services.find((service) => service.service_id === selectedCertificate?.service_id)?.name || ""}</Text>
+            <Text style={styles.modalText}>{t('used_sessions')} {selectedCertificate?.used_sessions} / {selectedCertificate?.total_sessions} </Text>
             <View style={{ flexDirection: "row", alignItems: "center" }}>
-              <Text style={[styles.modalText, { flex: 1, marginRight: 10 }]}>З: {formatDateToLocal(selectedCertificate?.valid_from)}</Text>
-              <Text style={[styles.modalText, { flex: 1 }]}>По:{" "}
+              <Text style={[styles.modalText, { flex: 1, marginRight: 10 }]}>{t('from')}: {formatDateToLocal(selectedCertificate?.valid_from)}</Text>
+              <Text style={[styles.modalText, { flex: 1 }]}>{t('to')}:{" "}
                 <Text style={{ color: new Date(selectedCertificate?.valid_to) < new Date() ? "red" : "black" }}>
                   {formatDateToLocal(selectedCertificate?.valid_to)}
                 </Text>
               </Text>
             </View>
-            <Text style={styles.modalText}>Подовжити дію сертифіката</Text>
+            <Text style={styles.modalText}>{t('extend_certificate')}</Text>
             <TouchableOpacity onPress={showEndDatePicker} style={styles.datePickerButton}>
             <Text style={styles.datePickerButtonText}>
-              {formatDateToLocal(selectedCertificate?.valid_to) || "Дата кінця"}
+              {formatDateToLocal(selectedCertificate?.valid_to) || t('valid_to')}
             </Text>
           </TouchableOpacity>
           <DateTimePickerModal
@@ -465,28 +467,23 @@ export default function CertificatesScreen() {
           />
                   <TextInput
                     style={styles.input}
-                    placeholder="Коментар"
+                    placeholder={t('comment')}
                     value={selectedCertificate?.comment || ""}
                     onChangeText={(text) =>
                     setSelectedCertificate({ ...selectedCertificate, comment: text })
                  }
                   />
           
-
-            
             <TouchableOpacity style={styles.saveButton} onPress={handleEditCertificate}>
-              <Text style={styles.saveButtonText}>Зберегти</Text>
+              <Text style={styles.saveButtonText}>{t('save')}</Text>
             </TouchableOpacity>
             <TouchableOpacity style={styles.cancelButton} onPress={() => setEditModalVisibleCertificate(false)}>
-              <Text style={styles.cancelButtonText}>Скасувати</Text>
+              <Text style={styles.cancelButtonText}>{t('cancel')}</Text>
             </TouchableOpacity>
           </View>
         </View>
       </Modal>
 
-
-
-           
     </View>
   </TouchableWithoutFeedback>
 

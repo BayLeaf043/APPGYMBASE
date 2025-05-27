@@ -9,11 +9,12 @@ const financesSchema = Joi.object({
     system_id: Joi.string().guid({ version: 'uuidv4' }).required(),
     created_at: Joi.date().optional(),
     price: Joi.number().required().messages({
-        'number.base': 'Ціна має бути числом',
-        'any.required': 'Ціна є обов’язковою',
+        'number.base': 'error_finances_price_number',
+        'any.required': 'error_finances_price_required',
     }),
-    comment: Joi.string().required().messages({
-            'string.base': 'Коментар має бути текстом',
+    comment: Joi.string().min(1).required().messages({
+            'string.empty': 'error_finances_comment_empty',
+            'any.required': 'error_finances_comment_required',
         }),
 }).unknown(true);
 
@@ -23,7 +24,7 @@ router.get('/', async (req, res) => {
       const { system_id } = req.query;
   
       if (!system_id) {
-        return res.status(400).json({ error: 'system_id є обов’язковим' });
+        return res.status(400).json({ error: req.t('error_system_id_required') });
       }
 
       const result = await pool.query(
@@ -33,11 +34,11 @@ router.get('/', async (req, res) => {
              WHERE f.system_id = $1`,
             [system_id]
         );
-        
+
       res.json(result.rows);
     } catch (err) {
       console.error('Error fetching finances:', err.message);
-      res.status(500).json({ error: 'Failed to fetch finances' });
+      res.status(500).json({ error: req.t('error_fetch_finances_failed') });
     }
 });
 
@@ -46,7 +47,7 @@ router.get('/balance', async (req, res) => {
   try {
     const { system_id } = req.query;
     if (!system_id) {
-      return res.status(400).json({ error: 'system_id є обов’язковим' });
+      return res.status(400).json({ error: req.t('error_system_id_required') });
     }
     // Підрахунок залишку по кожному payment_method
     const result = await pool.query(
@@ -59,7 +60,7 @@ router.get('/balance', async (req, res) => {
     res.json(result.rows);
   } catch (err) {
     console.error('Error fetching balances:', err.message);
-    res.status(500).json({ error: 'Failed to fetch balances' });
+    res.status(500).json({ error: req.t('error_fetch_balances_failed') });
   }
 });
 
@@ -71,19 +72,19 @@ router.post('/', async (req, res) => {
 
     const { error } = financesSchema.validate(req.body);
     if (error) {
-      return res.status(400).json({ error: error.details[0].message });
+      return res.status(400).json({ error: req.t(error.details[0].message) });
     }
 
     // Додати транзакцію
     const result = await pool.query(
-      `INSERT INTO finances (price, transaction_type, payment_method, comment, system_id) VALUES ($1, 'Списання', $2, $3, $4::uuid) RETURNING *`,
+      `INSERT INTO finances (price, transaction_type, payment_method, comment, system_id) VALUES ($1, 'expense', $2, $3, $4::uuid) RETURNING *`,
       [price, payment_method, comment, system_id ]
     );
 
     res.status(201).json(result.rows[0]);
   } catch (err) {
     console.error('Error adding finances:', err.message);
-    res.status(500).json({ error: 'Failed to add finances' });
+    res.status(500).json({ error: req.t('error_add_finances_failed') });
   }
 });  
 

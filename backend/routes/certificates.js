@@ -11,51 +11,51 @@ const certificateSchema = Joi.object({
     client_id: Joi.number().integer().positive().required(),
     service_id: Joi.number().integer().positive().required(),
     valid_from: Joi.date().required().messages({
-        'date.base': 'Дата початку дії має бути коректною датою',
-        'any.required': 'Дата початку дії є обов’язковою',
+        'date.base': 'error_valid_from_date_invalid',
+        'any.required': 'error_valid_from_date_required',
     }),
     valid_to: Joi.date().greater(Joi.ref('valid_from')).required().messages({
-        'date.base': 'Дата закінчення дії має бути коректною датою',
-        'date.greater': 'Дата закінчення дії має бути пізніше дати початку дії',
-        'any.required': 'Дата закінчення дії є обов’язковою',
+        'date.base': 'error_valid_to_date_invalid',
+        'date.greater': 'error_valid_to_date_greater',
+        'any.required': 'error_valid_to_date_required',
     }),
     total_sessions: Joi.number().integer().min(1).required().messages({
-        'number.base': 'Кількість занять має бути числом',
-        'number.integer': 'Кількість занять має бути цілим числом',
-        'number.min': 'Кількість занять має бути не менше 1',
-        'any.required': 'Кількість занять є обов’язковою',
+        'number.base': 'error_total_sessions_number',
+        'number.integer': 'error_total_sessions_integer',
+        'number.min': 'error_total_sessions_min',
+        'any.required': 'error_total_sessions_required',
     }),
     used_sessions: Joi.number().integer().min(0).default(0).messages({
-        'number.base': 'Кількість використаних занять має бути числом',
-        'number.integer': 'Кількість використаних занять має бути цілим числом',
-        'number.min': 'Кількість використаних занять не може бути від’ємною',
+        'number.base': 'error_used_sessions_number',
+        'number.integer': 'error_used_sessions_integer',
+        'number.min': 'error_used_sessions_min',
     }),
     price: Joi.number().required().messages({
-        'number.base': 'Ціна має бути числом',
-        'any.required': 'Ціна є обов’язковою',
+        'number.base': 'error_finances_price_number',
+        'any.required': 'error_finances_price_required',
     }),
-    status: Joi.string().valid('Активний', 'Неактивний').required().messages({
-        'any.only': 'Статус має бути "Активний" або "Неактивний"',
-        'any.required': 'Статус є обов’язковим',
+    status: Joi.string().valid('active', 'inactive').required().messages({
+        'any.only': 'error_status_invalid',
+        'any.required': 'error_status_required',
     }),
     payment_method: Joi.string().required().messages({
-        'string.base': 'Метод оплати має бути текстом',
-        'any.required': 'Метод оплати є обов’язковим',
+        'string.base': 'error_payment_method_text',
+        'any.required': 'error_payment_method_required',
     }),
     comment: Joi.string().allow('').optional().messages({
-        'string.base': 'Коментар має бути текстом',
+        'string.base': 'error_comment_text',
     }),
 });
 
 
 const updateSchema = Joi.object({
   valid_to: Joi.date().greater('now').required().messages({
-    'date.base': 'Дата закінчення дії має бути коректною датою',
-    'date.greater': 'Дата закінчення дії має бути в майбутньому',
-    'any.required': 'Дата закінчення дії є обов’язковою',
+    'date.base': 'error_valid_to_date_invalid',
+    'date.greater': 'error_valid_to_date_future',
+    'any.required': 'error_valid_to_date_required',
   }),
   comment: Joi.string().allow('').optional().messages({
-    'string.base': 'Коментар має бути текстом',
+    'string.base': 'error_comment_text',
   }),
 }).unknown(true);
 
@@ -66,7 +66,7 @@ router.get('/', async (req, res) => {
       const { system_id } = req.query;
   
       if (!system_id) {
-        return res.status(400).json({ error: 'system_id є обов’язковим' });
+        return res.status(400).json({ error: req.t('error_system_id_required') });
       }
 
       // Оновлення статусів сертифікатів
@@ -76,7 +76,7 @@ router.get('/', async (req, res) => {
       res.json(result.rows);
     } catch (err) {
       console.error('Error fetching certificates:', err.message);
-      res.status(500).json({ error: 'Failed to fetch certificates' });
+      res.status(500).json({ error: req.t('error_fetch_certificates_failed') });
     }
   });
 
@@ -87,19 +87,23 @@ router.post('/', async (req, res) => {
       const { client_id, service_id, valid_from, valid_to,
         total_sessions, used_sessions, price, status, payment_method, comment, system_id } = req.body;
   
-      const { error } = certificateSchema.validate(req.body);
-      if (error) {
-        return res.status(400).json({ error: error.details[0].message });
+        if(!client_id){
+        return res.status(400).json({ error: req.t('error_client_not_found') });
       }
 
-      if (!client_id) {
-        return res.status(400).json({ error: 'client_id є обов’язковим' });
+      if(!service_id){
+        return res.status(400).json({ error: req.t('error_service_not_found') });
       }
 
       if (price < 0) {
-        return res.status(400).json({ error: 'Ціна повинна бути додатнім числом' });
+        return res.status(400).json({ error: req.t('error_must_be_positive') });
       }
-  
+
+      const { error } = certificateSchema.validate(req.body);
+      if (error) {
+        return res.status(400).json({ error: req.t(error.details[0].message) });
+      }
+
       // Перевірка існування категорії
       const clientResult = await pool.query(
         'SELECT client_id FROM clients WHERE client_id = $1',
@@ -107,13 +111,9 @@ router.post('/', async (req, res) => {
       );
   
       if (clientResult.rows.length === 0) {
-        return res.status(404).json({ error: 'клієнта не знайдена' });
+        return res.status(404).json({ error: req.t('error_client_not_found') });
       }
 
-      if (!service_id) {
-        return res.status(400).json({ error: 'service_id є обов’язковим' });
-      }
-  
       // Перевірка існування категорії
       const serviceResult = await pool.query(
         'SELECT service_id FROM services WHERE service_id = $1',
@@ -121,7 +121,7 @@ router.post('/', async (req, res) => {
       );
   
       if (serviceResult.rows.length === 0) {
-        return res.status(404).json({ error: 'послугу не знайдена' });
+        return res.status(404).json({ error: req.t('error_service_not_found') });
       }
 
 
@@ -141,14 +141,14 @@ router.post('/', async (req, res) => {
       // Додавання запису у таблицю finances
         await pool.query(
             `INSERT INTO finances (certificate_id, price, payment_method, transaction_type, comment, system_id) 
-            VALUES ($1, $2, $3, 'Надходження', $4, $5::uuid)`,
-            [newCertificate.certificate_id, price, payment_method,  comment, system_id || 'Сертифікат створено']
+            VALUES ($1, $2, $3, 'income', $4, $5::uuid)`,
+            [newCertificate.certificate_id, price, payment_method,  comment, system_id]
         );
       
       res.status(201).json(newCertificate);
     } catch (err) {
       console.error('Error adding certificate:', err.message);
-      res.status(500).json({ error: 'Failed to add certificate' });
+      res.status(500).json({ error: req.t('error_add_certificate_failed') });
     }
   });
 
@@ -162,7 +162,7 @@ router.put('/:certificate_id', async (req, res) => {
       // Валідація вхідних даних
       const { error } = updateSchema.validate(req.body);
       if (error) {
-        return res.status(400).json({ error: error.details[0].message });
+        return res.status(400).json({ error: req.t(error.details[0].message) });
       }
   
   
@@ -176,7 +176,7 @@ router.put('/:certificate_id', async (req, res) => {
       );
   
       if (result.rows.length === 0) {
-        return res.status(404).json({ error: 'Certificate not found' });
+        return res.status(404).json({ error: req.t('error_certificate_not_found') });
       }
 
       // Оновлення статусів сертифікатів
@@ -185,7 +185,7 @@ router.put('/:certificate_id', async (req, res) => {
       res.json(result.rows[0]);
     } catch (err) {
       console.error('Error updating certificate:', err.message);
-      res.status(500).json({ error: 'Failed to update certificate' });
+      res.status(500).json({ error: req.t('error_update_certificate_failed') });
     }
   });
 
@@ -194,8 +194,6 @@ router.put('/:certificate_id', async (req, res) => {
 router.delete('/:certificate_id', async (req, res) => {
     try {
       const { certificate_id } = req.params;
-  
-      console.log('Видалення сертифіката з ID:', certificate_id);
 
       // Перевірка кількості використаних сеансів
     const certificateCheck = await pool.query(
@@ -204,26 +202,26 @@ router.delete('/:certificate_id', async (req, res) => {
     );
 
     if (certificateCheck.rows.length === 0) {
-      return res.status(404).json({ error: 'Сертифікат не знайдено' });
+      return res.status(404).json({ error: req.t('error_certificate_not_found') });
     }
 
     const { used_sessions } = certificateCheck.rows[0];
     if (used_sessions > 0) {
-      return res.status(403).json({ error: 'Видалення сертифіката заборонено, оскільки вже використано сеанси' });
+      return res.status(403).json({ error: req.t('error_certificate_in_use') });
     }
-  
+
       await pool.query('DELETE FROM finances WHERE certificate_id = $1', [certificate_id]);
     
       const result = await pool.query('DELETE FROM certificates WHERE certificate_id = $1 RETURNING *', [certificate_id]);
   
       if (result.rows.length === 0) {
-        return res.status(404).json({ error: 'Certificate not found' });
+        return res.status(404).json({ error: req.t('error_certificate_not_found') });
       }
-  
-      res.json({ message: 'Certificate deleted successfully' });
+
+      res.json({ message: req.t('success_certificate_deleted') });
     } catch (err) {
       console.error('Error deleting certificate:', err.message);
-      res.status(500).json({ error: `Failed to delete certificate: ${err.message}` });
+      res.status(500).json({ error: req.t('error_delete_certificate_failed') });
     }
   });
 
@@ -234,15 +232,15 @@ router.delete('/:certificate_id', async (req, res) => {
       await pool.query(`
       UPDATE certificates
       SET status = CASE
-        WHEN used_sessions >= total_sessions OR DATE(valid_to) < CURRENT_DATE THEN 'Неактивний'
-        WHEN used_sessions < total_sessions AND DATE(valid_to) >= CURRENT_DATE THEN 'Активний'
+        WHEN used_sessions >= total_sessions OR DATE(valid_to) < CURRENT_DATE THEN 'inactive'
+        WHEN used_sessions < total_sessions AND DATE(valid_to) >= CURRENT_DATE THEN 'active'
         ELSE status
       END
     `);
   
-      console.log('Статуси сертифікатів оновлено');
+      console.log('Statuses of certificates updated successfully');
     } catch (err) {
-      console.error('Помилка оновлення статусів сертифікатів:', err.message);
+      console.error('Error updating certificate statuses:', err.message);
     }
   };
 

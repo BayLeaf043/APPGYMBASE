@@ -11,12 +11,16 @@ import { AuthContext } from '../../AuthContext';
 import { Calendar } from 'react-native-big-calendar';
 import { Alert } from 'react-native';
 import styles from './Calendar.style';
+import { useTranslation } from 'react-i18next';
+import i18n from '../../i18n';
 import { fetchHalls, fetchCategories, fetchClients, fetchEmployees, fetchEvents, fetchClientCertificates, addEvent, deleteEvent, editEvent } from './CalendarApi';
 
 const { height } = Dimensions.get('window');
 
 
 export default function CalendarScreen() {
+
+  const { t } = useTranslation();
 
   const dismissKeyboard = () => {
     Keyboard.dismiss();
@@ -48,8 +52,8 @@ export default function CalendarScreen() {
   const [endTimePickerVisible, setEndTimePickerVisible] = useState(false);
   const [eventDatePickerVisible, setEventDatePickerVisible] = useState(false);
 
-  const [selectedHall, setSelectedHall] = useState("Всі"); // Фільтр за залом
-  const [selectedEmployee, setSelectedEmployee] = useState("Всі"); // Фільтр за працівником
+  const [selectedHall, setSelectedHall] = useState(t('all')); // Фільтр за залом
+  const [selectedEmployee, setSelectedEmployee] = useState(t('all')); // Фільтр за працівником
 
   const [certificatesModalVisible, setCertificatesModalVisible] = useState(false);
   const [selectedClientForCertificates, setSelectedClientForCertificates] = useState(null);
@@ -107,19 +111,18 @@ export default function CalendarScreen() {
       }));
 
       setSelectedClients(clientsWithCertificates);
-
       // Завантажуємо сертифікати для кожного клієнта
       clientsWithCertificates.forEach((client) => {
         fetchClientCertificates(user?.system_id, client.client_id, setClientCertificates, { category_id });
       });
     })
-    .catch((error) => console.error('Помилка завантаження клієнтів події:', error));
+    .catch((error) => console.error('Error fetching event clients:', error));
 }, []);
 
   const fetchDeductSessions = useCallback(() => {
     fetch(`${BASE_URL}/calendar/deduct-sessions`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 'Content-Type': 'application/json', 'Accept-Language': i18n.language },
       body: JSON.stringify({
         event_id: selectedEvent.event_id,
         deductions: selectedClients.map((client) => ({
@@ -132,7 +135,7 @@ export default function CalendarScreen() {
     })
   .then((response) => response.json())
   .then((data) => {
-    console.log('Списання успішно виконано:', data);
+    console.log('Deduction successful:', data);
 
       setSelectedEvent((prevEvent) => ({
         ...prevEvent,
@@ -157,10 +160,10 @@ export default function CalendarScreen() {
       );
       fetchEventClients(selectedEvent.event_id, selectedEvent.category_id);
 
-      Alert.alert("Успіх", "Подію успішно оплачено.");
+      Alert.alert(t('success'), t('event_paid_successfully'));
       setEditModalVisibleEvent(false);
   })
-  .catch((error) => console.error('Помилка списання занять:', error));
+  .catch((error) => console.error('Error deducting sessions:', error));
 }, [selectedEvent, selectedClients, user]);
 
 const handlePayment = () => {
@@ -171,8 +174,8 @@ const handlePayment = () => {
 
   if (clientsWithoutCertificates.length > 0) {
     Alert.alert(
-      "Помилка",
-      "У всіх клієнтів мають бути обрані сертифікати перед оплатою."
+      t('error'),
+      t('all_clients_must_have_certificates_before_payment')
     );
     return;
   }
@@ -184,23 +187,23 @@ const handlePayment = () => {
 
   
   const handleAddEvent = () => {
-    addEvent(user?.system_id, newEvent, events, setEvents, resetNewEvent, setAddModalVisibleEvent, fetchEvents);
+    addEvent(user?.system_id, newEvent, events, setEvents, resetNewEvent, setAddModalVisibleEvent, fetchEvents, t);
   };
 
   const handleDeleteEvent = (event_id) => {
-    deleteEvent(event_id, events, setEvents, setEditModalVisibleEvent);
+    deleteEvent(event_id, events, setEvents, setEditModalVisibleEvent, t);
   };
 
   const handleEditEvent = () => {
-    
-    editEvent(user?.system_id, selectedEvent, events, setEvents, fetchEvents, setEditModalVisibleEvent);
+
+    editEvent(user?.system_id, selectedEvent, events, setEvents, fetchEvents, setEditModalVisibleEvent, t);
     if (selectedClients.length === 0) {
-    console.log('Список клієнтів порожній. Запит не буде виконано.');
+    console.log('The list of clients is empty. The request will not be sent.');
     return;
   }
     fetch(`${BASE_URL}/calendar/${selectedEvent.event_id}/clients`, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers: { 'Content-Type': 'application/json', 'Accept-Language': i18n.language },
     body: JSON.stringify({
       clients: selectedClients.map((client) => client.client_id),
       system_id: user?.system_id,
@@ -208,9 +211,9 @@ const handlePayment = () => {
   })
     .then((response) => response.json())
     .then((data) => {
-      console.log('Клієнти успішно збережені:', data);
+      console.log('Clients successfully saved:', data);
     })
-    .catch((error) => console.error('Помилка збереження клієнтів:', error));
+    .catch((error) => console.error('Error saving clients:', error));
 };
 
   const resetNewEvent = () => {
@@ -242,11 +245,11 @@ const handlePayment = () => {
 
   const filteredEvents = events.filter((event) => {
   // Фільтр за залом
-    if (selectedHall !== "Всі" && event.hall_id !== selectedHall) {
+    if (selectedHall !== t('all') && event.hall_id !== selectedHall) {
       return false;
     }
   // Фільтр за працівником
-    if (selectedEmployee !== "Всі" && event.user_id !== selectedEmployee) {
+    if (selectedEmployee !== t('all') && event.user_id !== selectedEmployee) {
       return false;
     }
     return true;
@@ -278,7 +281,7 @@ const handlePayment = () => {
       <View style={styles.box}>
 
         <TouchableOpacity style={styles.addButton} onPress={() => setAddModalVisibleEvent(true)}>
-          <Text style={styles.addButtonText}>+ Додати подію</Text>
+          <Text style={styles.addButtonText}>+ {t('add_event')}</Text>
         </TouchableOpacity>
         
         <Calendar
@@ -304,7 +307,7 @@ const handlePayment = () => {
             ]}
             labelField="label"
             valueField="value"
-            placeholder="Обрати зал"
+            placeholder={t('select_hall')}
             value={selectedHall}
             onChange={(item) => setSelectedHall(item.value)}
             placeholderStyle={styles.dropdownPlaceholder}
@@ -316,12 +319,12 @@ const handlePayment = () => {
           <Dropdown
             style={[styles.dropdown, { flex: 1, marginLeft: 10, margin: 20, borderRadius: 5, }]}
             data={[
-              { label: "Всі", value: "Всі" },
+              { label: t('all'), value: t('all') },
               ...employees.map((employee) => ({ label: employee.fullName, value: employee.user_id })),
             ]}
             labelField="label"
             valueField="value"
-            placeholder="Обрати працівника"
+            placeholder={t('select_employee')}
             value={selectedEmployee}
             onChange={(item) => setSelectedEmployee(item.value)}
             placeholderStyle={styles.dropdownPlaceholder}
@@ -335,7 +338,7 @@ const handlePayment = () => {
       <Modal visible={addModalVisibleEvent} transparent animationType="slide">
         <View style={[styles.modalContainer, { justifyContent: "flex-start", paddingTop: 20, }]}>
           <View style={styles.modalBox}>
-            <Text style={styles.modalTitle}>Додати подію</Text>
+            <Text style={styles.modalTitle}>{t('add_event')}</Text>
 
             {/* Вибір кольору події */}
             <View style={styles.colorPickerContainer}>
@@ -354,7 +357,7 @@ const handlePayment = () => {
 
             <TextInput
               style={styles.input}
-              placeholder="Назва події"
+              placeholder={t('event_title')}
               value={newEvent.title}
               onChangeText={(text) => setNewEvent({ ...newEvent, title: text })}
             />
@@ -367,7 +370,7 @@ const handlePayment = () => {
               }))}
               labelField="label"
               valueField="value"
-              placeholder="Оберіть категорію"
+              placeholder={t('select_category')}
               value={newEvent.category_id}
               onChange={(item) => {
                 setNewEvent({
@@ -389,7 +392,7 @@ const handlePayment = () => {
               }))}
               labelField="label"
               valueField="value"
-              placeholder="Оберіть зал"
+              placeholder={t('select_hall')}
               value={newEvent.hall_id}
               onChange={(item) => {
                 setNewEvent({
@@ -411,7 +414,7 @@ const handlePayment = () => {
               }))}
               labelField="label"
               valueField="value"
-              placeholder="Оберіть працівника"
+              placeholder={t('select_employee')}
               value={newEvent.user_id}
               onChange={(item) => {
                 setNewEvent({
@@ -431,7 +434,7 @@ const handlePayment = () => {
               onPress={() => setEventDatePickerVisible(true)}
             >
               <Text style={styles.datePickerButtonText}>
-                Дата події: {formatDateToDisplay(newEvent.event_date) || "Не обрано"}
+                {t('event_date')}: {formatDateToDisplay(newEvent.event_date) || t('not_selected')}
               </Text>
             </TouchableOpacity>
             <DateTimePickerModal
@@ -458,7 +461,7 @@ const handlePayment = () => {
             onPress={() => setStartTimePickerVisible(true)}
             >
               <Text style={styles.datePickerButtonText}>
-                Час початку: {formatTimeToLocal(newEvent.start_time) || "Не обрано"}
+                {t('event_start_time')}: {formatTimeToLocal(newEvent.start_time) || t('not_selected')}
               </Text>
             </TouchableOpacity>
             <DateTimePickerModal
@@ -486,7 +489,7 @@ const handlePayment = () => {
               onPress={() => setEndTimePickerVisible(true)}
             >
               <Text style={styles.datePickerButtonText}>
-                Час закінчення: {formatTimeToLocal(newEvent.end_time) || "Не обрано"}
+                {t('event_end_time')}: {formatTimeToLocal(newEvent.end_time) || t('not_selected')}
               </Text>
             </TouchableOpacity>
             <DateTimePickerModal
@@ -508,10 +511,10 @@ const handlePayment = () => {
             />
 
             <TouchableOpacity style={styles.saveButton} onPress={handleAddEvent}>
-              <Text style={styles.saveButtonText}>Зберегти</Text>
+              <Text style={styles.saveButtonText}>{t('save')}</Text>
             </TouchableOpacity>
             <TouchableOpacity style={styles.cancelButton} onPress={closeAddModal}>
-              <Text style={styles.cancelButtonText}>Скасувати</Text>
+              <Text style={styles.cancelButtonText}>{t('cancel')}</Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -524,7 +527,7 @@ const handlePayment = () => {
       <Modal visible={editModalVisibleEvent} transparent animationType="slide">
         <View style={[styles.modalContainer, { justifyContent: "flex-start", paddingTop: 20, }]}>
           <View style={styles.modalBox}>
-            <Text style={styles.modalTitle}>Редагувати подію</Text>
+            <Text style={styles.modalTitle}>{t('edit_event')}</Text>
 
             <View style={styles.colorPickerContainer}>
               {['#FFA500', '#00BFFF', '#FF6347', '#32CD32', '#8A2BE2', '#FFD700', '#40E0D0'].map((color) => (
@@ -548,7 +551,7 @@ const handlePayment = () => {
 
             <TextInput
               style={[styles.input, { backgroundColor: selectedEvent.is_active ? "#fff" : "#f0f0f0" }]}
-              placeholder="Назва події"
+              placeholder={t('event_title')}
               value={selectedEvent?.title}
               onChangeText={(text) => setSelectedEvent({ ...selectedEvent, title: text })}
               editable={selectedEvent.is_active}
@@ -563,7 +566,7 @@ const handlePayment = () => {
               }))}
               labelField="label"
               valueField="value"
-              placeholder="Оберіть категорію"
+              placeholder={t('select_category')}
               value={selectedEvent?.category_id}
               onChange={(item) => {
                 if (selectedEvent.is_active) {
@@ -586,7 +589,7 @@ const handlePayment = () => {
               }))}
               labelField="label"
               valueField="value"
-              placeholder="Оберіть зал"
+              placeholder={t('select_hall')}
               value={selectedEvent?.hall_id}
               onChange={(item) => {
                 if (selectedEvent.is_active) {
@@ -612,7 +615,7 @@ const handlePayment = () => {
               }))}
               labelField="label"
               valueField="value"
-              placeholder="Оберіть працівника"
+              placeholder={t('select_employee')}
               value={selectedEvent?.user_id}
               onChange={(item) => {
                 if (selectedEvent.is_active) {
@@ -640,7 +643,7 @@ const handlePayment = () => {
               disabled={!selectedEvent.is_active}
             >
               <Text style={styles.datePickerButtonText}>
-                Дата події: {formatDateToDisplay(selectedEvent?.event_date) || "Не обрано"}
+                {t('event_date')}: {formatDateToDisplay(selectedEvent?.event_date) || t('not_selected')}
               </Text>
             </TouchableOpacity>
             <DateTimePickerModal
@@ -673,7 +676,7 @@ const handlePayment = () => {
               disabled={!selectedEvent.is_active}
             >
               <Text style={styles.datePickerButtonText}>
-                Початок: {formatTimeToLocal(selectedEvent?.start_time) || "Не обрано"}
+                {t('event_start_time')}: {formatTimeToLocal(selectedEvent?.start_time) || t('not_selected')}
               </Text>
             </TouchableOpacity>
             <DateTimePickerModal
@@ -706,7 +709,7 @@ const handlePayment = () => {
               disabled={!selectedEvent.is_active}
             >
               <Text style={styles.datePickerButtonText}>
-                Кінець: {formatTimeToLocal(selectedEvent?.end_time) || "Не обрано"}
+                {t('event_end_time')}: {formatTimeToLocal(selectedEvent?.end_time) || t('not_selected')}
               </Text>
             </TouchableOpacity>
             <DateTimePickerModal
@@ -736,7 +739,7 @@ const handlePayment = () => {
               }))}
               labelField="label"
               valueField="value"
-              placeholder="Оберіть клієнта"
+              placeholder={t('select_client')}
               onChange={(item) => {
               setSelectedClients((prevClients) => {
                 if (prevClients.some((client) => client.client_id === item.value)) {
@@ -746,7 +749,7 @@ const handlePayment = () => {
               });
               }}
               search
-              searchPlaceholder="Пошук клієнта..."
+              searchPlaceholder={t('search_client')}
               disabled={!selectedEvent.is_active}
               containerStyle={styles.dropdownContainer}
               placeholderStyle={styles.placeholderStyle}
@@ -772,7 +775,7 @@ const handlePayment = () => {
                     setSelectedClientForCertificates(item); // Зберігаємо вибраного клієнта
                     setCertificatesModalVisible(true); // Відкриваємо модальне вікно
                   } else {
-                  console.error("Категорія події не вибрана");
+                  console.error("Cannot fetch certificates: category_id or event is not active.");
                    }
                 }}
                 disabled={!selectedEvent.is_active} // Вимкнути кнопку, якщо подія оплачена
@@ -799,16 +802,19 @@ const handlePayment = () => {
         // Видалення клієнта з бази даних
           fetch(`${BASE_URL}/calendar/${selectedEvent.event_id}/clients/${item.client_id}`, {
             method: 'DELETE',
+            headers: {
+              'Accept-Language': i18n.language,
+            },
           })
             .then((response) => {
               return response.json();
             })
             .then((data) => {
-              console.log('Клієнт успішно видалений:', data);
+              console.log('Client deleted successfully:', data);
             })
-            .catch((error) => console.error('Помилка видалення клієнта:', error));
+            .catch((error) => console.error('Error deleting client:', error));
             } else {
-      console.log('Клієнт ще не збережений у базі даних, запит на видалення не виконується.');
+      console.log('Client is not saved in the database yet, deletion request is not executed.');
     }
         }}
       
@@ -823,23 +829,23 @@ const handlePayment = () => {
  {selectedEvent.is_active && (
           <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: 10 }}>
             <TouchableOpacity style={[styles.actionButton, { backgroundColor: "orange", marginRight: 10 }]} onPress={handleEditEvent}>
-              <Text style={styles.actionButtonText}>Зберегти</Text>
+              <Text style={styles.actionButtonText}>{t('save')}</Text>
             </TouchableOpacity>
 
-{user?.role === "Адміністратор" && (
+{user?.role === "admin" && (
             <TouchableOpacity style={[styles.actionButton, { backgroundColor: "blue", marginRight: 10 }]} onPress={handlePayment}>
-              <Text style={styles.actionButtonText}>Оплатити</Text>
+              <Text style={styles.actionButtonText}>{t('pay')}</Text>
             </TouchableOpacity>
 )}
-{user?.role === "Адміністратор" && (
+{user?.role === "admin" && (
             <TouchableOpacity style={[styles.actionButton, { backgroundColor: "red" }]} onPress={() => handleDeleteEvent(selectedEvent.event_id)}>
-              <Text style={styles.actionButtonText}>Видалити</Text>
+              <Text style={styles.actionButtonText}>{t('delete')}</Text>
             </TouchableOpacity>
 )}
           </View>
  )}
             <TouchableOpacity style={styles.cancelButton} onPress={() => setEditModalVisibleEvent(false)}>
-              <Text style={styles.cancelButtonText}>Закрити</Text>
+              <Text style={styles.cancelButtonText}>{t('cancel')}</Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -850,7 +856,7 @@ const handlePayment = () => {
       <Modal visible={certificatesModalVisible} transparent animationType="slide">
   <View style={styles.modalContainer}>
     <View style={styles.modalBox}>
-      <Text style={styles.modalTitle}>Сертифікати клієнта</Text>
+      <Text style={styles.modalTitle}>{t('client_certificates')}</Text>
       {ClientCertificates[selectedClientForCertificates?.client_id]?.length > 0 ? (
         <FlatList
           data={ClientCertificates[selectedClientForCertificates?.client_id]}
@@ -869,13 +875,13 @@ const handlePayment = () => {
           )}
         />
       ) : (
-        <Text>Сертифікати відсутні</Text>
+        <Text>{t('no_certificates')}</Text>
       )}
       <TouchableOpacity
         style={styles.cancelButton}
         onPress={() => setCertificatesModalVisible(false)}
       >
-        <Text style={styles.cancelButtonText}>Закрити</Text>
+        <Text style={styles.cancelButtonText}>{t('close')}</Text>
       </TouchableOpacity>
     </View>
   </View>

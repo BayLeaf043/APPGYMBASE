@@ -1,4 +1,5 @@
 import React from 'react';
+import './i18n';
 import { NavigationContainer } from '@react-navigation/native';
 import { StatusBar } from 'expo-status-bar';
 import { AuthProvider } from './AuthContext';

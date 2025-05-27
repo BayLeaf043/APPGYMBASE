@@ -14,7 +14,7 @@ router.post('/', async (req, res) => {
     // Перевірка, чи існує користувач із таким email
     const userResult = await pool.query('SELECT * FROM users WHERE email = $1', [email]);
     if (userResult.rows.length === 0) {
-      return res.status(400).json({ error: 'Невірний email або пароль' });
+      return res.status(400).json({ error: req.t('error_invalid_credentials') });
     }
 
     const user = userResult.rows[0];
@@ -22,7 +22,7 @@ router.post('/', async (req, res) => {
     // Перевірка пароля
     const isPasswordValid = await bcrypt.compare(password, user.password);
     if (!isPasswordValid) {
-      return res.status(400).json({ error: 'Невірний email або пароль' });
+      return res.status(400).json({ error: req.t('error_invalid_credentials') });
     }
 
     const token = jwt.sign(
@@ -43,7 +43,7 @@ router.post('/', async (req, res) => {
     });
   } catch (err) {
     console.error('Error during login:', err.message);
-    res.status(500).json({ error: 'Помилка авторизації' });
+    res.status(500).json({ error: req.t('error_login_failed') });
   }
 });
 

@@ -7,12 +7,15 @@ import DateTimePickerModal from "react-native-modal-datetime-picker";
 import { useFocusEffect } from '@react-navigation/native';
 import { AuthContext } from '../../AuthContext';
 import styles from './Clients.style';
+import { useTranslation } from 'react-i18next';
 import { fetchClients, fetchServices, fetchCertificates, addClient, deleteClient, editClient} from './ClientsApi';
 
 const { height } = Dimensions.get('window');
 
 
 export default function ClientsScreen() {
+
+  const { t } = useTranslation();
 
   const dismissKeyboard = () => {
     Keyboard.dismiss();
@@ -27,7 +30,7 @@ export default function ClientsScreen() {
   const [modalVisibleClient, setModalVisibleClient] = useState(false);
   const [addModalVisibleClient, setAddModalVisibleClient] = useState(false);
   const [editModalVisibleClient, setEditModalVisibleClient] = useState(false);
-  const [newClient, setNewClient] = useState({ name: "", surname: "", phone: "", birthday: "", status: "Активний", system_id: user?.system_id });
+  const [newClient, setNewClient] = useState({ name: "", surname: "", phone: "", birthday: "", status: "active", system_id: user?.system_id });
   const [selectedClient, setSelectedClient] = useState(null);
 
   const [searchText, setSearchText] = useState(""); // Стан для тексту пошуку
@@ -58,7 +61,7 @@ export default function ClientsScreen() {
 
   const resetNewClient = () => {
     setNewClient({
-      name: "", surname: "", phone: "", birthday: "", status: "Активний",
+      name: "", surname: "", phone: "", birthday: "", status: "active",
     system_id: user?.system_id
     });
   };
@@ -79,15 +82,15 @@ export default function ClientsScreen() {
   };
 
   const handleAddClient = () => {
-    addClient(newClient, clients, setClients, resetNewClient, setAddModalVisibleClient);
+    addClient(newClient, clients, setClients, resetNewClient, setAddModalVisibleClient, t);
   };
 
   const handleDeleteClient = (client_id) => {
-    deleteClient(client_id, clients, setClients);
+    deleteClient(client_id, clients, setClients, t);
   };
 
   const handleEditClient = () => {
-    editClient(selectedClient, clients, setClients, setEditModalVisibleClient);
+    editClient(selectedClient, clients, setClients, setEditModalVisibleClient, t);
   };
 
   const formatDateToLocal = (date) => {
@@ -194,12 +197,12 @@ export default function ClientsScreen() {
      
       
         <TouchableOpacity style={styles.addButton} onPress={() => setAddModalVisibleClient(true)}>
-          <Text style={styles.addButtonText}>+ Додати</Text>
+          <Text style={styles.addButtonText}>+ {t('add')}</Text>
         </TouchableOpacity> 
 
         <TextInput
             style={styles.searchInput}
-            placeholder="Пошук за ім'ям або прізвищем"
+            placeholder={t('search_client')}
             value={searchText}
             onChangeText={(text) => setSearchText(text)}
           />
@@ -207,14 +210,14 @@ export default function ClientsScreen() {
           
       
         <View style={styles.headerRow}>
-          <Text style={[styles.headerText, { flex: 2 }]}>Клієнт</Text>
-          <Text style={[styles.headerText, { flex: 4, paddingRight:48 }]}>Контакт</Text>
+          <Text style={[styles.headerText, { flex: 2 }]}>{t('client')}</Text>
+          <Text style={[styles.headerText, { flex: 4, paddingRight:48 }]}>{t('contact')}</Text>
         </View> 
 
         {/* Список клієнтів */}
         {filteredClients.length === 0 ? (
         <View style={{ alignItems: 'center', marginTop: 20 }}>
-          <Text style={{ fontSize: 16, color: 'gray' }}>Немає доступних клієнтів</Text>
+          <Text style={{ fontSize: 16, color: 'gray' }}>{t('no_clients_available')}</Text>
         </View>
         ) : (
         <FlatList
@@ -251,28 +254,28 @@ export default function ClientsScreen() {
             {selectedClient && (
               
             <>
-            <Text style={styles.modalTitle}>Інформація про клієнта</Text>
+            <Text style={styles.modalTitle}>{t('client_info')}</Text>
             <Text style={[styles.modalText, { fontWeight: "bold" }]}>{selectedClient.name} {selectedClient.surname}</Text>
-            <Text style={styles.modalText}>Телефон: {formatPhoneNumber(selectedClient.phone)} </Text>
+            <Text style={styles.modalText}>{t('phone')}: {formatPhoneNumber(selectedClient.phone)} </Text>
             <Text style={styles.modalText}>
-              Дата народження: {formatDateToLocal(selectedClient?.birthday) || "Не вказано"}
+              {t('birthday')}: {formatDateToLocal(selectedClient?.birthday) || t('not_selected')}
             </Text>
-            <Text style={styles.modalText}>Кількість відвідувань: {selectedClient.count_of_visits} </Text>
-            <Text style={styles.modalText}>Останнє відвідування: {formatDateToLocal(selectedClient.last_visit)} </Text>
-            <Text style={styles.modalText}>Загальний дохід: {calculateClientRevenue(selectedClient.client_id)} грн </Text>
+            <Text style={styles.modalText}>{t('number_of_visits')}: {selectedClient.count_of_visits} </Text>
+            <Text style={styles.modalText}>{t('last_visit')}: {formatDateToLocal(selectedClient.last_visit)} </Text>
+            <Text style={styles.modalText}>{t('total_revenue')}: {calculateClientRevenue(selectedClient.client_id)} {t('currency')} </Text>
             <Text style={styles.modalText}>
-              Статус:{" "}
-              <Text style={{ color: selectedClient.status === "Активний" ? "green" : "red" }}>
-                {selectedClient.status}
+              {t('status')}:{" "}
+              <Text style={{ color: selectedClient.status === "active" ? "green" : "red" }}>
+                {t(selectedClient.status)}
               </Text>
             </Text>
-            <Text style={styles.modalText}>Список придбаних послуг: </Text>
+            <Text style={styles.modalText}>{t('purchased_services_list')}: </Text>
 
             <FlatList
             data={sortCertificates(certificates).filter((cert) => cert.client_id === selectedClient.client_id)} // Сортування за датою від найновішого до найстарішого
             keyExtractor={(item) => item.certificate_id.toString()}
             renderItem={({ item }) => {
-              const serviceName = services.find((service) => service.service_id === item.service_id)?.name || "Невідома послуга";
+              const serviceName = services.find((service) => service.service_id === item.service_id)?.name || t('not_selected');
               const isExpired = new Date(item.valid_to) < new Date();
             return(
               <View style={[styles.certificateItem, { flexDirection: "row", alignItems: "center" }]}>
@@ -286,7 +289,7 @@ export default function ClientsScreen() {
                   {serviceName}
                 </Text>
                 <Text style={[styles.certificateText, { flex: 3, marginRight: 3 }]}>
-                  {item.price} грн
+                  {item.price} {t('currency')}
                 </Text>
                 <Text style={[styles.certificateText, { flex: 1 }]}>
                   {item.used_sessions}/{item.total_sessions}
@@ -297,7 +300,7 @@ export default function ClientsScreen() {
             </>
             )}
           <TouchableOpacity style={styles.cancelButton} onPress={() => setModalVisibleClient(false)}>
-            <Text style={styles.cancelButtonText}>Закрити</Text>
+            <Text style={styles.cancelButtonText}>{t('close')}</Text>
           </TouchableOpacity>
           </View>
         </View>
@@ -308,22 +311,22 @@ export default function ClientsScreen() {
       <Modal visible={addModalVisibleClient} transparent animationType="slide">
         <View style={styles.modalContainer}>
           <View style={styles.modalBox}>
-            <Text style={styles.modalTitle}>Додати клієнта</Text>
+            <Text style={styles.modalTitle}>{t('add_client')}</Text>
             <TextInput
               style={styles.input}
-              placeholder="Ім'я клієнта"
+              placeholder={t('name')}
               value={newClient.name}
               onChangeText={(text) => setNewClient({ ...newClient, name: text })}
             />
             <TextInput
               style={styles.input}
-              placeholder="Прізвище клієнта"
+              placeholder={t('surname')}
               value={newClient.surname}
               onChangeText={(text) => setNewClient({ ...newClient, surname: text })}
             />
             <TextInput
               style={styles.input}
-              placeholder="Телефон"
+              placeholder={t('phone')}
               value={newClient.phone}
               onChangeText={(text) => {
                 if (!isNaN(text) || text === '') {
@@ -333,7 +336,7 @@ export default function ClientsScreen() {
             />
             <TouchableOpacity onPress={showDatePicker} style={styles.datePickerButton}>
               <Text style={styles.datePickerButtonText}>
-              {formatDateToLocal(newClient.birthday) || "Обрати дату народження"}
+              {formatDateToLocal(newClient.birthday) || t('birthday')}
               </Text>
             </TouchableOpacity>
 
@@ -352,10 +355,10 @@ export default function ClientsScreen() {
             />
 
             <TouchableOpacity style={styles.saveButton} onPress={handleAddClient}>
-              <Text style={styles.saveButtonText}>Додати</Text>
+              <Text style={styles.saveButtonText}>{t('add')}</Text>
             </TouchableOpacity>
             <TouchableOpacity style={styles.cancelButton} onPress={closeAddModal}>
-              <Text style={styles.cancelButtonText}>Скасувати</Text>
+              <Text style={styles.cancelButtonText}>{t('cancel')}</Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -366,23 +369,23 @@ export default function ClientsScreen() {
       <Modal visible={editModalVisibleClient} transparent animationType="slide">
         <View style={styles.modalContainer}>
           <View style={styles.modalBox}>
-            <Text style={styles.modalTitle}>Редагувати дані клієнта</Text>
+            <Text style={styles.modalTitle}>{t('edit_client_data')}</Text>
 
             <TextInput
               style={styles.input}
-              placeholder="Ім'я клієнта"
+              placeholder={t('name')}
               value={selectedClient?.name}
               onChangeText={(text) => setSelectedClient({ ...selectedClient, name: text })}
             />
             <TextInput
               style={styles.input}
-              placeholder="Прізвище клієнта"
+              placeholder={t('surname')}
               value={selectedClient?.surname}
               onChangeText={(text) => setSelectedClient({ ...selectedClient, surname: text })}
             />
             <TextInput
             style={styles.input}
-            placeholder="Телефон"
+            placeholder={t('phone')}
             value={selectedClient?.phone}
             keyboardType="numeric"
             onChangeText={(text) => {
@@ -393,11 +396,11 @@ export default function ClientsScreen() {
             }}
             />
 
-            <Text style={styles.modalText}>Дата народження:</Text>
+            <Text style={styles.modalText}>{t('birthday')}:</Text>
 
             <TouchableOpacity onPress={showDatePicker} style={styles.datePickerButton}>
               <Text style={styles.datePickerButtonText}>
-              {formatDateToLocal(selectedClient?.birthday) || "Редагувати дату народження"}
+              {formatDateToLocal(selectedClient?.birthday) || t('not_selected')}
               </Text>
             </TouchableOpacity>
 
@@ -413,21 +416,21 @@ export default function ClientsScreen() {
               minimumDate={new Date(1900, 0, 1)} 
             />
             <TouchableOpacity
-              style={[styles.toggleButton, {backgroundColor: selectedClient?.status === "Активний" ? "green" : "red"}]}
+              style={[styles.toggleButton, {backgroundColor: selectedClient?.status === "active" ? "green" : "red"}]}
               onPress={() =>
                 setSelectedClient({
                   ...selectedClient,
-                  status: selectedClient.status === "Активний" ? "Неактивний" : "Активний",
+                  status: selectedClient.status === "active" ? "inactive" : "active",
                 })
               }
-            ><Text style={styles.toggleButtonText}>{selectedClient?.status}</Text>
+            ><Text style={styles.toggleButtonText}>{t(selectedClient?.status)}</Text>
             </TouchableOpacity>
 
             <TouchableOpacity style={styles.saveButton} onPress={handleEditClient}>
-              <Text style={styles.saveButtonText}>Зберегти</Text>
+              <Text style={styles.saveButtonText}>{t('save')}</Text>
             </TouchableOpacity>
             <TouchableOpacity style={styles.cancelButton} onPress={() => setEditModalVisibleClient(false)}>
-              <Text style={styles.cancelButtonText}>Скасувати</Text>
+              <Text style={styles.cancelButtonText}>{t('cancel')}</Text>
             </TouchableOpacity>
           </View>
         </View>

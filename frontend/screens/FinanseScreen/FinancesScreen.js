@@ -7,10 +7,13 @@ import { useState, useContext,  useCallback } from "react";
 import { useFocusEffect } from '@react-navigation/native';
 import { AuthContext } from '../../AuthContext';
 import styles from './Finanse.style';
+import { useTranslation } from 'react-i18next';
 import { fetchFinances, fetchBalances, fetchClients, addFinances } from './FinanceApi';
 
 
 export default function FinancesScreen() {
+
+  const { t } = useTranslation();
 
   const dismissKeyboard = () => {
     Keyboard.dismiss();
@@ -35,13 +38,13 @@ export default function FinancesScreen() {
 
   const [modalVisibleFinances, setModalVisibleFinances] = useState(false);
   const [addModalVisibleFinances, setAddModalVisibleFinances] = useState(false);
-  const [newFinances, setNewFinances] = useState({ price: "", payment_method: "Готівка", comment: "", system_id: user?.system_id });
+  const [newFinances, setNewFinances] = useState({ price: "", payment_method: "cash", comment: "", system_id: user?.system_id });
   const [selectedFinances, setSelectedFinances] = useState(null);
 
-  const [selectedAccount, setSelectedAccount] = useState("Всі"); 
-  const [selectedTransactionType, setSelectedTransactionType] = useState("Всі"); 
-  const [selectedMonth, setSelectedMonth] = useState(null); 
-  const [isDatePickerVisible, setDatePickerVisible] = useState(false); 
+  const [selectedAccount, setSelectedAccount] = useState('All');
+  const [selectedTransactionType, setSelectedTransactionType] = useState('All');
+  const [selectedMonth, setSelectedMonth] = useState(null);
+  const [isDatePickerVisible, setDatePickerVisible] = useState(false);
 
   const [balances, setBalances] = useState({});
 
@@ -57,7 +60,7 @@ export default function FinancesScreen() {
   const resetNewFinances = () => {
     setNewFinances({
       price: "",
-      payment_method: "Готівка",
+      payment_method: "cash",
       comment: "",
       system_id: user?.system_id,
     });
@@ -74,7 +77,7 @@ export default function FinancesScreen() {
   };
 
   const handleAddFinances = () => {
-      addFinances(newFinances, balances, finances, setFinances, fetchBalances, resetNewFinances, setAddModalVisibleFinances);
+      addFinances(newFinances, balances, finances, setFinances, fetchBalances, resetNewFinances, setAddModalVisibleFinances,t);
     };
 
   const sortFinances = (finances) => {
@@ -83,11 +86,11 @@ export default function FinancesScreen() {
 
   const filteredFinances = finances.filter((item) => {
     // Фільтр за рахунком
-    if (selectedAccount !== "Всі" && item.payment_method !== selectedAccount) {
+    if (selectedAccount !== 'All' && item.payment_method !== selectedAccount) {
       return false;
     }
     // Фільтр за типом транзакції
-    if (selectedTransactionType !== "Всі" && item.transaction_type !== selectedTransactionType) {
+    if (selectedTransactionType !== 'All' && item.transaction_type !== selectedTransactionType) {
       return false;
     }
     // Фільтр за місяцем
@@ -123,7 +126,7 @@ export default function FinancesScreen() {
       <View style={styles.box}>
       
         <TouchableOpacity style={styles.addButton} onPress={() => setAddModalVisibleFinances(true)}>
-          <Text style={styles.addButtonText}>Списання</Text>
+          <Text style={styles.addButtonText}>{t('expense')}</Text>
         </TouchableOpacity>
 
         <View style={styles.filtersContainer}>
@@ -131,13 +134,13 @@ export default function FinancesScreen() {
           <Dropdown
             style={[styles.dropdown, {flex:1}, {marginRight: 10}]}
             data={[
-              { label: "Всі", value: "Всі" },
-              { label: "Готівка", value: "Готівка" },
-              { label: "Картка", value: "Картка" },
+              { label: t("all"), value: "All" },
+              { label: t("cash"), value: "cash" },
+              { label: t("card"), value: "card" },
            ]}
             labelField="label"
             valueField="value"
-            placeholder="Рахунок"
+            placeholder={t("account")}
             value={selectedAccount}
             onChange={(item) => setSelectedAccount(item.value)}
             placeholderStyle={styles.dropdownPlaceholder}
@@ -148,13 +151,13 @@ export default function FinancesScreen() {
           <Dropdown
             style={[styles.dropdown, {flex:1}]}
             data={[
-              { label: "Всі", value: "Всі" },
-              { label: "Надходження", value: "Надходження" },
-              { label: "Списання", value: "Списання" },
+              { label: t("all"), value: "All" },
+              { label: t("income"), value: "income" },
+              { label: t("expense"), value: "expense" },
             ]}
             labelField="label"
             valueField="value"
-            placeholder="Тип транзакції"
+            placeholder={t("transaction_type")}
             value={selectedTransactionType}
             onChange={(item) => setSelectedTransactionType(item.value)}
             placeholderStyle={styles.dropdownPlaceholder}
@@ -168,13 +171,13 @@ export default function FinancesScreen() {
               <Text style={styles.datePickerButtonText}>
                 {selectedMonth
                   ? `${selectedMonth.getMonth() + 1}/${selectedMonth.getFullYear()}`
-                  : "Обрати місяць"}
+                  : t('select_month')}
               </Text>
             </TouchableOpacity>
 
             {selectedMonth && (
               <TouchableOpacity style={[styles.resetButton, {flex: 1, marginleft: 10}]} onPress={() => setSelectedMonth(null)}>
-                <Text style={styles.resetButtonText}>Скинути</Text>
+                <Text style={styles.resetButtonText}>{t('reset')}</Text>
               </TouchableOpacity>
             )}
  
@@ -191,14 +194,14 @@ export default function FinancesScreen() {
         </View>
       
         <TouchableOpacity style={styles.headerRow}>
-          <Text style={[styles.headerText, { flex: 3, marginRight:10 }]}>Дата</Text>
-          <Text style={[styles.headerText, { flex: 2}]}>Сума</Text>
-          <Text style={[styles.headerText, { flex: 2, marginRight:34}]}>Рахунок</Text>
+          <Text style={[styles.headerText, { flex: 3, marginRight:10 }]}>{t('date')}</Text>
+          <Text style={[styles.headerText, { flex: 2}]}>{t('amount')}</Text>
+          <Text style={[styles.headerText, { flex: 2, marginRight:34}]}>{t('account')}</Text>
         </TouchableOpacity>
        
         {finances.length === 0 ? (
           <View style={{ alignItems: 'center', marginTop: 20 }}>
-            <Text style={{ fontSize: 16, color: 'gray' }}>Немає доступних сертифікатів</Text>
+            <Text style={{ fontSize: 16, color: 'gray' }}>{t('no_transactions')}</Text>
           </View>
           ) : (
           <FlatList
@@ -212,8 +215,8 @@ export default function FinancesScreen() {
                 <Text style={styles.financesText}>{formatDateTimeToLocal(item.create_at)}</Text>
               </TouchableOpacity>
 
-              <Text style={[styles.financesText, { flex: 2, marginRight: 20, color:item.transaction_type === 'Надходження' ? 'green' : 'red' }]}>{item.price} грн</Text>
-              <Text style={[styles.financesText, { flex: 2, marginRight: 10 }]}>{item.payment_method}</Text>
+              <Text style={[styles.financesText, { flex: 2, marginRight: 20, color:item.transaction_type === 'income' ? 'green' : 'red' }]}>{item.price} {t('currency')}</Text>
+              <Text style={[styles.financesText, { flex: 2, marginRight: 10 }]}>{t(item.payment_method)}</Text>
     
             </View>
                   )}
@@ -221,7 +224,7 @@ export default function FinancesScreen() {
                  )}
                  <View style={styles.totalContainer}>
                     <Text style={styles.totalText}>
-                      Загальна сума: {(calculateTotal(filteredFinances)).toFixed(2)} грн
+                      {t('total')}: {(calculateTotal(filteredFinances)).toFixed(2)} {t('currency')}
                     </Text>
                   </View>
         </View>
@@ -235,42 +238,42 @@ export default function FinancesScreen() {
           <View style={styles.modalBox}>
           {selectedFinances && (
           <>
-          <Text style={styles.modalTitle}>{selectedFinances.transaction_type} від {formatDateTimeToLocal(selectedFinances.create_at)}</Text>
+          <Text style={styles.modalTitle}>{t(selectedFinances.transaction_type)} {t('fromm')} {formatDateTimeToLocal(selectedFinances.create_at)}</Text>
 
-          {selectedFinances.transaction_type === 'Надходження' ? (
+          {selectedFinances.transaction_type === 'income' ? (
             <>
               <Text style={styles.modalText}>
-                Клієнт: {clients.find((client) => client.client_id === selectedFinances.client_id)?.fullName || "Невідомий клієнт"}
+                {t('client')}: {clients.find((client) => client.client_id === selectedFinances.client_id)?.fullName || "Невідомий клієнт"}
               </Text>
               <Text style={styles.modalText}>
-                Сума: {" "}
-                <Text style={{ color: "green" }}>{selectedFinances.price} грн</Text>
+                {t('amount')}: {" "}
+                <Text style={{ color: "green" }}>{selectedFinances.price} {t('currency')}</Text>
               </Text>
               <Text style={styles.modalText}>
-                Рахунок: {selectedFinances.payment_method}
+                {t('account')}: {t(selectedFinances.payment_method)}
               </Text>
               <Text style={styles.modalText}>
-                Коментар: {selectedFinances.comment || "Немає коментаря"}
+                {t('comment')}: {selectedFinances.comment || "-"}
               </Text>
             </>
           ) : (
             <>
               <Text style={styles.modalText}>
-                Сума списання: {" "}
-                <Text style={{ color: "red" }}>{selectedFinances.price} грн</Text>
+                {t('amount_expense')}: {" "}
+                <Text style={{ color: "red" }}>{selectedFinances.price} {t('currency')}</Text>
               </Text>
               <Text style={styles.modalText}>
-                Рахунок: {selectedFinances.payment_method}
+                {t('account')}: {t(selectedFinances.payment_method)}
               </Text>
               <Text style={styles.modalText}>
-                Причина списання: {selectedFinances.comment || "Не вказано"}
+                {t('reason_expense')}: {selectedFinances.comment || "-"}
               </Text>
             </>
           )}
         </>
       )}
           <TouchableOpacity style={styles.cancelButton} onPress={() => setModalVisibleFinances(false)}>
-            <Text style={styles.cancelButtonText}>Закрити</Text>
+            <Text style={styles.cancelButtonText}>{t('close')}</Text>
           </TouchableOpacity>
           </View>
         </View>
@@ -282,38 +285,38 @@ export default function FinancesScreen() {
       
         <View style={styles.modalContainer}>
           <View style={styles.modalBox}>
-            <Text style={styles.modalTitle}>Списання коштів</Text>
+            <Text style={styles.modalTitle}>{t('expense_funds')}</Text>
 
             <TextInput
               style={styles.input}
-              placeholder="Сума списання"
-              value={newFinances.price}  
+              placeholder={t('amount_expense')}
+              value={newFinances.price}
               keyboardType="numeric"
               onChangeText={(text) => {
-                        
-              if (!isNaN(text) || text === '') {
-                setNewFinances({ ...newFinances, price: -parseInt(text) || "" })           
+              const sanitizedText = text.replace(/-/g, '');
+              if (!isNaN(sanitizedText) || sanitizedText === '') {
+                setNewFinances({ ...newFinances, price: -parseInt(sanitizedText) || "" })
               }
              }}
             />
 
             <TouchableOpacity
-              style={[styles.toggleButton, {backgroundColor: newFinances?.payment_method === "Готівка" ? "green" : "blue"}]}
+              style={[styles.toggleButton, {backgroundColor: newFinances?.payment_method === "cash" ? "green" : "blue"}]}
               onPress={() =>
                 setNewFinances({
                   ...newFinances,
-                  payment_method: newFinances.payment_method === "Готівка" ? "Картка" : "Готівка",
+                  payment_method: newFinances.payment_method === "cash" ? "card" : "cash",
               })
             }
             >
               <Text style={styles.toggleButtonText}>
-                {newFinances.payment_method === "Готівка" ? "Готівка" : "Картка"}
+                {t(newFinances.payment_method)}
               </Text>
             </TouchableOpacity>
 
             <TextInput
               style={styles.input}
-              placeholder="Коментар"
+              placeholder={t('comment')}
               value={newFinances.comment || ""}
               onChangeText={(text) =>
               setNewFinances({ ...newFinances, comment: text })
@@ -321,10 +324,10 @@ export default function FinancesScreen() {
             />
           
             <TouchableOpacity style={styles.saveButton} onPress={handleAddFinances}>
-              <Text style={styles.saveButtonText}>Зберегти</Text>
+              <Text style={styles.saveButtonText}>{t('save')}</Text>
             </TouchableOpacity>
             <TouchableOpacity style={styles.cancelButton} onPress={closeAddModal}>
-              <Text style={styles.cancelButtonText}>Скасувати</Text>
+              <Text style={styles.cancelButtonText}>{t('cancel')}</Text>
             </TouchableOpacity>
           </View>
         </View>
