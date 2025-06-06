@@ -32,7 +32,7 @@ router.get('/', async (req, res) => {
   }
 });
 
-// Розширений звіт для тренера
+// Розширений звіт зарплати
 router.get('/report', async (req, res) => {
   try {
     const { user_id, startDate, endDate } = req.query;

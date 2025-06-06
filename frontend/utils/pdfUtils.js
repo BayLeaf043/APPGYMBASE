@@ -18,7 +18,6 @@ const formatDateToLocal = (date) => {
   return `${hours}:${minutes}`;
   };
 /**
- * Формує PDF-звіт і ділиться ним
  * @param {Object} employee - Інформація про працівника
  * @param {Array} records - Дані для звіту
  * @param {Array} finances - Фінансові дані

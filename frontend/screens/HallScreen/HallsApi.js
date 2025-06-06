@@ -8,7 +8,7 @@ export const fetchHalls = (system_id, setHalls) => {
       fetch(`${BASE_URL}/halls?system_id=${system_id}`, {
       method: 'GET',
       headers: {
-        'Accept-Language': i18n.language, // Передаємо мову
+        'Accept-Language': i18n.language,
       },
     })
         .then((response) => response.json())

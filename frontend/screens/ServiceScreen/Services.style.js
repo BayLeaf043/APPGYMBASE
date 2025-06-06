@@ -32,9 +32,9 @@ export default StyleSheet.create({
     borderColor: "#ddd",
   },
   headerText: { 
-    fontSize: 12, // Зменшений шрифт
+    fontSize: 12, 
     fontWeight: "bold",
-    textAlign: "left", // Вирівнювання тексту по центру
+    textAlign: "left", 
     color: "#333",
     paddingLeft:20
   },
@@ -62,8 +62,8 @@ export default StyleSheet.create({
     justifyContent: "center",
   },
   serviceText: { 
-    fontSize: 12, // Зменшений шрифт
-    textAlign: "left", // Вирівнювання тексту по центру
+    fontSize: 12, 
+    textAlign: "left",
     color: "#333",
   },
   actionButtonsContainer: {
@@ -169,27 +169,27 @@ export default StyleSheet.create({
   dropdown: {
   borderWidth: 1,
   borderColor: '#ccc',
-  borderRadius: 0, // Додано округлення
+  borderRadius: 0, 
   paddingHorizontal: 5,
-  marginBottom: 10, // Відступ між компонентами
-  height: 30, // Висота випадаючого списку
-  fontSize: 12, // Розмір шрифту для тексту в полі
+  marginBottom: 10, 
+  height: 30, 
+  fontSize: 12, 
 },
 dropdownContainer: {
   borderWidth: 1,
   borderColor: '#ccc',
-  borderRadius: 0, // Округлення для контейнера
+  borderRadius: 0, 
 },
 placeholderStyle: {
-  fontSize: 12, // Розмір шрифту для тексту-заповнювача
+  fontSize: 12, 
   color: 'gray',
 },
 selectedTextStyle: {
-  fontSize: 12, // Розмір шрифту для вибраного тексту
+  fontSize: 12, 
   color: '#000',
 },
 itemTextStyle: {
-  fontSize: 12, // Розмір шрифту для елементів списку
+  fontSize: 12, 
   color: '#000',
 },
 

@@ -64,14 +64,14 @@ export default StyleSheet.create({
     textAlign: "left",
   },
   actionButton: {
-    flex: 1, // Рівномірний розподіл ширини
-    padding: 7, // Зменшений відступ
+    flex: 1, 
+    padding: 7, 
     
     borderRadius: 5,
     alignItems: "center",
   },
   actionButtonText: {
-    fontSize: 12, // Розмір шрифту
+    fontSize: 12, 
     color: "#fff",
     fontWeight: "bold",
   },
@@ -82,7 +82,7 @@ export default StyleSheet.create({
   },
   cancelButtonText: {
     fontWeight: "bold",
-    fontSize: 12, // Розмір шрифту
+    fontSize: 12,
   },
   saveButton: { 
     marginTop: 10, 
@@ -93,7 +93,7 @@ export default StyleSheet.create({
   },
   saveButtonText: {
     fontWeight: "bold",
-    fontSize: 12, // Розмір шрифту
+    fontSize: 12,
     color: "#fff",
   },
   
@@ -103,21 +103,21 @@ export default StyleSheet.create({
     padding: 5, 
     marginBottom: 10,
     height: 30,
-    fontSize: 12, // Розмір шрифту для тексту в полі
+    fontSize: 12, 
   },
   dropdown: {
   borderWidth: 1,
   borderColor: '#ccc',
-  borderRadius: 0, // Додано округлення
+  borderRadius: 0, 
   paddingHorizontal: 5,
-  marginBottom: 10, // Відступ між компонентами
-  height: 30, // Висота випадаючого списку
-  fontSize: 12, // Розмір шрифту для тексту в полі
+  marginBottom: 10, 
+  height: 30, 
+  fontSize: 12, 
 },
 dropdownContainer: {
   borderWidth: 1,
   borderColor: '#ccc',
-  borderRadius: 5, // Округлення для контейнера
+  borderRadius: 5, 
 },
 dropdownPlaceholder: {
     fontSize: 12,
@@ -132,15 +132,15 @@ dropdownPlaceholder: {
     color: '#000',
   },
 placeholderStyle: {
-  fontSize: 12, // Розмір шрифту для тексту-заповнювача
+  fontSize: 12, 
   color: 'gray',
 },
 selectedTextStyle: {
-  fontSize: 12, // Розмір шрифту для вибраного тексту
+  fontSize: 12, 
   color: '#000',
 },
 itemTextStyle: {
-  fontSize: 12, // Розмір шрифту для елементів списку
+  fontSize: 12, 
   color: '#000',
 },
   datePickerButton: {
@@ -194,8 +194,8 @@ selectedClientText: {
   flex: 1,
 },
 clientList: {
-  maxHeight: 150, // Максимальна висота списку (можна змінити за потреби)
-  marginBottom: 10, // Відступ знизуborderWidth: 1, // Додатково: рамка для візуального відокремлення
+  maxHeight: 150, 
+  marginBottom: 10, 
 
 },
 
@@ -227,14 +227,14 @@ clientList: {
     borderRadius: 5,
     alignItems: "center",
     justifyContent: "center",
-    marginRight: 10, // Відступ праворуч
+    marginRight: 10, 
   },
   certificateText: {
     fontSize: 12,
     color: '#333',
   },
   selectedCertificateButton: {
-    backgroundColor: "#32CD32", // Зелений фон для вибраного сертифіката
+    backgroundColor: "#32CD32", 
   },
     
 });

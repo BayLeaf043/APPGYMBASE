@@ -22,7 +22,7 @@ export default function ClientsScreen() {
     Keyboard.dismiss();
   };
 
-  const [isDatePickerVisible, setDatePickerVisibility] = useState(false); // Стан для модального вибору дати
+  const [isDatePickerVisible, setDatePickerVisibility] = useState(false); 
   const [clients, setClients] = useState([]);
   const [certificates, setCertificates] = useState([]);
   const [services, setServices] = useState([]);
@@ -35,12 +35,12 @@ export default function ClientsScreen() {
   const [selectedClient, setSelectedClient] = useState(null);
 
 
-  const [searchText, setSearchText] = useState(""); // Стан для тексту пошуку
-  const [filteredClients, setFilteredClients] = useState([]); // Стан для відфільтрованих клієнтів
+  const [searchText, setSearchText] = useState(""); 
+  const [filteredClients, setFilteredClients] = useState([]); 
   useEffect(() => {
     // Фільтруємо клієнтів за введеним текстом
     if (searchText.trim() === "") {
-      setFilteredClients(clients); // Якщо поле пошуку порожнє, показуємо всіх клієнтів
+      setFilteredClients(clients); 
     } else {
       const lowercasedSearchText = searchText.toLowerCase();
       setFilteredClients(
@@ -403,7 +403,6 @@ export default function ClientsScreen() {
             value={selectedClient?.phone}
             keyboardType="numeric"
             onChangeText={(text) => {
-              // Перевірка, чи є введене значення числом
               if (!isNaN(text) || text === '') {
                 setSelectedClient({ ...selectedClient, phone: text });
               }

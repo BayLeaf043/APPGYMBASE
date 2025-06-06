@@ -140,7 +140,6 @@ export default function SalaryScreen() {
     fetchCategories(user?.system_id, setCategories);
     setEditModalVisiblePayment(false);
 
-    // Перевіряємо чи були помилки
     const hasError = results.some(r => r.error);
     if (hasError) {
       Alert.alert(t('error'), t('failed_to_update_categories'));

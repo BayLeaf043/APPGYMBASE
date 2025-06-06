@@ -8,7 +8,7 @@ export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null); // Дані користувача
   const [token, setToken] = useState(null); // JWT токен
 
-  // ===== Вхід =====
+  // Вхід 
   const login = async (userData) => {
     console.log('Authorization successful:', userData);
     setUser(userData.user);
@@ -22,7 +22,7 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  // ===== Вихід =====
+  // Вихід 
   const logout = async (navigation) => {
     setUser(null);
     setToken(null);
@@ -38,7 +38,7 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  // ===== Відновлення сесії при запуску =====
+  // Відновлення сесії при запуску
   const loadSession = async () => {
     try {
       const storedToken = await AsyncStorage.getItem('userToken');

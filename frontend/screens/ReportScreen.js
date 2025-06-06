@@ -24,9 +24,9 @@ export default function ReportScreen() {
 
   const { user } = useContext(AuthContext);
   const [isExpanded, setIsExpanded] = useState(false); 
-  const [startDate, setStartDate] = useState(null); // Початкова дата
-  const [endDate, setEndDate] = useState(null); // Кінцева дата
-  const [showStartPicker, setShowStartPicker] = useState(false); // Відображення вибору початкової дати
+  const [startDate, setStartDate] = useState(null); 
+  const [endDate, setEndDate] = useState(null); 
+  const [showStartPicker, setShowStartPicker] = useState(false); 
   const [showEndPicker, setShowEndPicker] = useState(false);
   const [payment_method, setPaymentMethod] = useState(null); 
 
@@ -46,21 +46,19 @@ export default function ReportScreen() {
 
   const toggleExpand = () => {
     if (isExpanded) {
-    // Очищення значень при згортанні
     setStartDate(null);
     setEndDate(null);
-    setPaymentMethod(null); // Повертаємо значення за замовчуванням
+    setPaymentMethod(null); 
   }
-  setIsExpanded(!isExpanded); // Перемикаємо стан
+  setIsExpanded(!isExpanded); 
   };
 
   const toggleExpand1 = () => {
     if (isExpanded1) {
-      // Очищення значень при згортанні
       setStartDate(null);
       setEndDate(null);
     }
-    setIsExpanded1(!isExpanded1); // Перемикаємо стан
+    setIsExpanded1(!isExpanded1);
   };
 
   const handleDownloadReport = async () => {
@@ -273,16 +271,7 @@ export default function ReportScreen() {
               </View>
             </View>
           )}
-
-          
-
-        </View>
-
-
-        
-
-
-           
+        </View>   
     </View>
   </TouchableWithoutFeedback>
 
@@ -368,15 +357,15 @@ const styles = StyleSheet.create({
     
   },
   dropdownPlaceholder: {
-    fontSize: 12, // Зменшений шрифт для плейсхолдера
+    fontSize: 12,
     color: "#999",
   },
   dropdownText: {
-    fontSize: 12, // Зменшений шрифт для вибраного тексту
+    fontSize: 12, 
     color: "#333",
   },
   dropdownItemText: {
-    fontSize: 12, // Зменшений шрифт для тексту елемента списку
+    fontSize: 12, 
     color: "#333",
   },
   saveButton: { 

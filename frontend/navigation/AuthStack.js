@@ -13,7 +13,7 @@ export default function AuthStack() {
   return (
     <Stack.Navigator screenOptions={{ headerShown: false }}>
       {user ? (
-        // 🔐 Користувач залогінений — показуємо тільки Main
+        // Користувач залогінений — показуємо тільки Main
         <Stack.Screen name="Main" component={MainDrawer} />
       ) : (
         <>

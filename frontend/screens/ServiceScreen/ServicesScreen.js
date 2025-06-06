@@ -260,7 +260,6 @@ export default function ServicesScreen() {
             
             keyboardType="numeric"
             onChangeText={(text) => {
-              // Перевірка, чи є введене значення числом
               if (!isNaN(text) || text === '') {
                 setSelectedService({ ...selectedService, price: text });
               }
@@ -273,7 +272,6 @@ export default function ServicesScreen() {
            
             keyboardType="numeric"
             onChangeText={(text) => {
-              // Перевірка, чи є введене значення числом
               if (!isNaN(text) || text === '') {
                 setSelectedService({ ...selectedService, total_sessions: text });
               }

@@ -26,7 +26,7 @@ export default function MainDrawer({ navigation }) {
 
   const showUserAlert = () => {
     Alert.alert(
-      t('user'), // Заголовок
+      t('user'), 
       `${user?.surname} ${user?.name}\n\n${t('role')}: ${t(user?.role)}\n`, 
       [
         { text: 'OK' },
@@ -47,9 +47,9 @@ const toggleLanguage = () => {
   i18n.changeLanguage(newLang);
 
   Alert.alert(
-    t('language_changed'), // Заголовок
-    `${t('app_language_set_to')} ${newLang === 'uk' ? t('ukrainian') : t('english')}`, // Повідомлення
-    [{ text: 'OK' }] // Кнопка OK
+    t('language_changed'),
+    `${t('app_language_set_to')} ${newLang === 'uk' ? t('ukrainian') : t('english')}`, 
+    [{ text: 'OK' }] 
   );
 };
 

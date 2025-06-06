@@ -1,6 +1,6 @@
 const express = require('express');
-const pool = require('../db'); // Підключаємо пул з'єднань
-const Joi = require('joi'); // Підключаємо Joi для валідації
+const pool = require('../db'); 
+const Joi = require('joi'); 
 
 
 const router = express.Router();
@@ -94,13 +94,11 @@ router.put('/:service_id', async (req, res) => {
     const { service_id } = req.params;
     const { name, status, price, category_id, total_sessions } = req.body;
 
-    // Валідація вхідних даних
     const { error } = serviceSchema.validate(req.body);
     if (error) {
       return res.status(400).json({ error: req.t(error.details[0].message) });
     }
 
-  
     // Перевірка існування категорії
     const categoryResult = await pool.query(
       'SELECT category_id FROM categories WHERE category_id = $1',

@@ -72,7 +72,6 @@ export default function CategoriesScreen() {
         <View style={styles.box}>
   
           {/* Кнопка "Додати" */}
-          
           <TouchableOpacity style={styles.addButton} onPress={() => setAddModalVisibleCategory(true)}>
             <Text style={styles.addButtonText}>+ {t('add')}</Text>
           </TouchableOpacity> 

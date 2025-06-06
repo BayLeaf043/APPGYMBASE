@@ -58,7 +58,6 @@ export default function CalendarScreen() {
   const [certificatesModalVisible, setCertificatesModalVisible] = useState(false);
   const [selectedClientForCertificates, setSelectedClientForCertificates] = useState(null);
 
-  // Стан для модального вікна
   const [addModalVisibleEvent, setAddModalVisibleEvent] = useState(false);
   const [newEvent, setNewEvent] = useState({
     title: "",
@@ -107,7 +106,7 @@ export default function CalendarScreen() {
         const clientsWithCertificates = data.map((client) => ({
         client_id: client.client_id,
         fullName: `${client.surname} ${client.name}`,
-        certificates: [], // Ініціалізуємо порожній масив для сертифікатів
+        certificates: [], 
       }));
 
       setSelectedClients(clientsWithCertificates);
@@ -126,9 +125,9 @@ export default function CalendarScreen() {
       body: JSON.stringify({
         event_id: selectedEvent.event_id,
         deductions: selectedClients.map((client) => ({
-          certificate_id: client.certificate_id, // Ідентифікатор сертифіката клієнта
-          client_id: client.client_id,          // Ідентифікатор клієнта
-          user_id: selectedEvent.user_id,       // Ідентифікатор тренера
+          certificate_id: client.certificate_id, 
+          client_id: client.client_id,          
+          user_id: selectedEvent.user_id,      
         })),
         system_id: user?.system_id,
       }),
@@ -146,7 +145,7 @@ export default function CalendarScreen() {
       setSelectedClients((prevClients) =>
         prevClients.map((client) => ({
           ...client,
-          certificateInfo: client.certificateInfo, // Зберігаємо інформацію про сертифікат
+          certificateInfo: client.certificateInfo, 
         }))
       );
 
@@ -767,18 +766,18 @@ const handlePayment = () => {
               <TouchableOpacity
                 style={[
                   styles.showCertificatesButton,
-                  item.certificateInfo ? styles.selectedCertificateButton : null, // Застосовуємо зелений стиль, якщо сертифікат вибрано
+                  item.certificateInfo ? styles.selectedCertificateButton : null, 
                 ]}
                 onPress={() => {
                   if (selectedEvent?.category_id && selectedEvent.is_active) {
                     fetchClientCertificates(user?.system_id, item.client_id, setClientCertificates, selectedEvent);
-                    setSelectedClientForCertificates(item); // Зберігаємо вибраного клієнта
-                    setCertificatesModalVisible(true); // Відкриваємо модальне вікно
+                    setSelectedClientForCertificates(item); 
+                    setCertificatesModalVisible(true); 
                   } else {
                   console.error("Cannot fetch certificates: category_id or event is not active.");
                    }
                 }}
-                disabled={!selectedEvent.is_active} // Вимкнути кнопку, якщо подія оплачена
+                disabled={!selectedEvent.is_active} 
               >
               
                 {item.certificateInfo ? (
@@ -786,7 +785,7 @@ const handlePayment = () => {
       {`${item.certificateInfo.used_sessions}/${item.certificateInfo.total_sessions}`}
     </Text>
   ) : (
-    <Text>📜</Text> // Відображати іконку, якщо сертифікат не вибрано і подія активна
+    <Text>📜</Text> 
   ) }
               </TouchableOpacity>
 
@@ -799,7 +798,6 @@ const handlePayment = () => {
           );
           
         if (selectedEvent.event_id && item.client_id) {
-        // Видалення клієнта з бази даних
           fetch(`${BASE_URL}/calendar/${selectedEvent.event_id}/clients/${item.client_id}`, {
             method: 'DELETE',
             headers: {

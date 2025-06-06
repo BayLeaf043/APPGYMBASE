@@ -31,9 +31,9 @@ container: {
     borderColor: "#ddd",
   },
   headerText: { 
-    fontSize: 12, // Зменшений шрифт
+    fontSize: 12, 
     fontWeight: "bold",
-    textAlign: "left", // Вирівнювання тексту по центру
+    textAlign: "left", 
     color: "#333",
     paddingLeft:20
   },
@@ -63,8 +63,8 @@ container: {
     justifyContent: "center",
   },
   clientText: { 
-    fontSize: 12, // Зменшений шрифт
-    textAlign: "left", // Вирівнювання тексту по центру
+    fontSize: 12,
+    textAlign: "left", 
     color: "#333",
   },
   actionButtonsContainer: {

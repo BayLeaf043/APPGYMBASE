@@ -1,5 +1,5 @@
 const express = require('express');
-const pool = require('../db'); // Підключаємо пул з'єднань
+const pool = require('../db'); 
 const Joi = require('joi');
 
 const router = express.Router();
@@ -20,7 +20,7 @@ const eventSchema = Joi.object({
   }),
   start_time: Joi.string()
     .pattern(/^([01]\d|2[0-3]):([0-5]\d):([0-5]\d)$/)
-    .min(1) // Формат HH:mm
+    .min(1) 
     .required()
     .messages({
       'string.pattern.base': 'error_event_start_time_invalid',
@@ -28,7 +28,7 @@ const eventSchema = Joi.object({
       'any.required': 'error_event_start_time_required',
     }),
   end_time: Joi.string()
-    .pattern(/^([01]\d|2[0-3]):([0-5]\d):([0-5]\d)$/) // Формат HH:mm:ss
+    .pattern(/^([01]\d|2[0-3]):([0-5]\d):([0-5]\d)$/) 
     .min(1)
     .required()
     .custom((value, helpers) => {
@@ -219,7 +219,6 @@ router.delete('/:event_id', async (req, res) => {
       return res.status(400).json({ error: req.t('error_clients_and_system_id_required') });
     }
 
-    // Формуємо параметри для запиту
     const values = clients.map((_, index) => `($1, $${index + 2}, $${clients.length + 2})`).join(',');
     const params = [event_id, ...clients, system_id];
 
@@ -287,7 +286,7 @@ router.delete('/:event_id/clients/:client_id', async (req, res) => {
 router.get('/clients/:client_id/certificates', async (req, res) => {
   try {
     const { client_id } = req.params;
-    const { category_id } = req.query; // Категорія події передається як параметр
+    const { category_id } = req.query;
 
     const result = await pool.query(
       `SELECT c.certificate_id, c.total_sessions, c.used_sessions, c.status, s.name AS service_name

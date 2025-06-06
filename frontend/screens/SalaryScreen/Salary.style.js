@@ -31,9 +31,9 @@ export default StyleSheet.create({
     borderColor: "#ddd",
   },
   headerText: { 
-    fontSize: 12, // Зменшений шрифт
+    fontSize: 12, 
     fontWeight: "bold",
-    textAlign: "left", // Вирівнювання тексту по центру
+    textAlign: "left", 
     color: "#333",
     paddingLeft:20
   },
@@ -163,8 +163,8 @@ export default StyleSheet.create({
     borderColor: "#ddd",
   },
   financesText: { 
-    fontSize: 12, // Зменшений шрифт
-    textAlign: "left", // Вирівнювання тексту по центру
+    fontSize: 12, 
+    textAlign: "left", 
     color: "#333",
   },
 

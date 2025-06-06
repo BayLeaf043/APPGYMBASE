@@ -1,5 +1,5 @@
 const express = require('express');
-const pool = require('../db'); // Підключаємо пул з'єднань
+const pool = require('../db');
 const Joi = require('joi');
 
 const router = express.Router();
@@ -122,7 +122,6 @@ router.post('/', async (req, res) => {
         return res.status(404).json({ error: req.t('error_service_not_found') });
       }
 
-      // Додавання нового сертифікату до бази даних
       const result = await pool.query(
         `INSERT INTO certificates (client_id, service_id, 
         valid_from, valid_to, total_sessions, used_sessions, price, 
@@ -155,7 +154,6 @@ router.put('/:certificate_id', async (req, res) => {
       const { certificate_id } = req.params;
       const { valid_to, comment } = req.body;
   
-      // Валідація вхідних даних
       const { error } = updateSchema.validate(req.body);
       if (error) {
         return res.status(400).json({ error: req.t(error.details[0].message) });
@@ -222,7 +220,7 @@ router.delete('/:certificate_id', async (req, res) => {
 
   const updateCertificateStatuses = async () => {
     try {
-      // Оновлення статусу на "Неактивний", якщо всі заняття використані
+      // Оновлення статусу сертифікатів на основі використаних сеансів та дати закінчення
       await pool.query(`
       UPDATE certificates
       SET status = CASE
@@ -244,7 +242,6 @@ router.get('/report', async (req, res) => {
   try {
     const { system_id, startDate, endDate } = req.query;
 
-    // Перевірка обов'язкових параметрів
     if (!system_id) {
       return res.status(400).json({ error: req.t('error_system_id_required') });
     }
@@ -252,7 +249,6 @@ router.get('/report', async (req, res) => {
       return res.status(400).json({ error: req.t('error_dates_required') });
     }
 
-    // SQL-запит для отримання сертифікатів
     const query = `
       SELECT 
         c.certificate_id,

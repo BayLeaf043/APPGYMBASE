@@ -31,9 +31,9 @@ export default StyleSheet.create({
     borderColor: "#ddd",
   },
   headerText: { 
-    fontSize: 12, // Зменшений шрифт
+    fontSize: 12,
     fontWeight: "bold",
-    textAlign: "left", // Вирівнювання тексту по центру
+    textAlign: "left", 
     color: "#333",
     paddingLeft:20
   },
@@ -41,7 +41,7 @@ export default StyleSheet.create({
     backgroundColor: "orange", 
     padding: 10, 
     borderRadius: 5, 
-    marginHorizontal: 20, // Відступи з боків
+    marginHorizontal: 20, 
     marginTop: 20,
     
   },
@@ -63,8 +63,8 @@ export default StyleSheet.create({
     justifyContent: "center",
   },
   financesText: { 
-    fontSize: 12, // Зменшений шрифт
-    textAlign: "left", // Вирівнювання тексту по центру
+    fontSize: 12, 
+    textAlign: "left", 
     color: "#333",
   },
   modalContainer: { 
@@ -130,7 +130,7 @@ export default StyleSheet.create({
     fontSize: 12, 
   },
   filtersContainer: {
-    marginHorizontal: 20, // Відступи з боків
+    marginHorizontal: 20, 
     marginTop: 10,
     flexDirection: "row",
     justifyContent: "space-between",
@@ -146,11 +146,11 @@ export default StyleSheet.create({
     
   },
   dropdownPlaceholder: {
-    fontSize: 12, // Зменшений шрифт для плейсхолдера
+    fontSize: 12, 
     color: "#999",
   },
   dropdownText: {
-    fontSize: 12, // Зменшений шрифт для вибраного тексту
+    fontSize: 12, 
     color: "#333",
   },
   
@@ -179,12 +179,12 @@ export default StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center", 
-    marginHorizontal: 20, // Відступи з боків
+    marginHorizontal: 20, 
     marginVertical: 10,
   },
   dropdownItemText:
   {
-    fontSize: 12, // Зменшений шрифт для тексту елемента списку
+    fontSize: 12, 
     color: "#333",
   },
   totalContainer: {

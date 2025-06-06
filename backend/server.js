@@ -2,7 +2,7 @@ require('dotenv').config();
 const express = require('express');
 const { i18n, middleware } = require('./i18n');
 const cors = require('cors');
-const pool = require('./db'); // Підключення БД
+const pool = require('./db'); 
 
 // Підключення маршрутів
 const hallsRoutes = require('./routes/halls'); 

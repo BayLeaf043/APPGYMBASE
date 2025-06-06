@@ -65,7 +65,6 @@ router.post('/', async (req, res) => {
       return res.status(400).json({ error: req.t(error.details[0].message) });
     }
 
-    // Додавання нового клієнта до бази даних
     const result = await pool.query(
       'INSERT INTO clients (name, surname, phone, birthday, system_id, status) VALUES ($1, $2, $3, $4::date, $5::uuid, $6) RETURNING *',
       [name, surname, phone, birthday, system_id, status]
@@ -92,7 +91,6 @@ router.put('/:client_id', async (req, res) => {
 
     const { name, surname, phone, birthday, status } = validatedData;
 
-    // Оновити клієнта
     const result = await pool.query(
       'UPDATE clients SET name = $1, surname = $2, phone = $3, birthday = $4::date, status = $5 WHERE client_id = $6 RETURNING *',
       [name, surname, phone, birthday, status, client_id]

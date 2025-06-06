@@ -3,7 +3,7 @@ import './i18n';
 import { NavigationContainer } from '@react-navigation/native';
 import { StatusBar } from 'expo-status-bar';
 import { AuthProvider } from './AuthContext';
-import AuthStack from './navigation/AuthStack'; // Імпортуємо наш Stack
+import AuthStack from './navigation/AuthStack'; 
 
 export default function App() {
   return (

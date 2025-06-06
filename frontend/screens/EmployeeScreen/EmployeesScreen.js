@@ -252,11 +252,11 @@ export default function EmployeesScreen() {
             <TextInput
               style={styles.input}
               placeholder={t('new_password')}
-              value={selectedEmployee?.password || ''} // Якщо пароль не передано, поле буде порожнім
+              value={selectedEmployee?.password || ''} 
               onChangeText={(text) => {
                 setSelectedEmployee((prev) => ({
                   ...prev,
-                  password: text || null, // Якщо текст порожній, встановлюємо null
+                  password: text || null, 
                 }));
            }}
             />

@@ -9,7 +9,7 @@ import { AuthContext } from '../AuthContext';
 import { BASE_URL } from '../config';
 import { useTranslation } from 'react-i18next';
 import { Alert } from 'react-native';
-import i18n from '../i18n'; // Імпортуємо i18n для використання мови
+import i18n from '../i18n'; 
 
 const { height, width } = Dimensions.get('window');
 
@@ -68,7 +68,7 @@ export default function RegScreen() {
     fetch(`${BASE_URL}/login`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json',
-        'Accept-Language': i18n.language  // Додаємо заголовок для мови
+        'Accept-Language': i18n.language  
       },
       body: JSON.stringify({
         email: loginData.email,

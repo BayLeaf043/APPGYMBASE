@@ -1,5 +1,5 @@
 const express = require('express');
-const pool = require('../db'); // Підключаємо пул з'єднань
+const pool = require('../db'); 
 const Joi = require('joi');
 
 const router = express.Router();
@@ -75,7 +75,6 @@ router.post('/', async (req, res) => {
       return res.status(400).json({ error: req.t(error.details[0].message) });
     }
 
-    // Додати транзакцію
     const result = await pool.query(
       `INSERT INTO finances (price, transaction_type, payment_method, comment, system_id) VALUES ($1, 'expense', $2, $3, $4::uuid) RETURNING *`,
       [price, payment_method, comment, system_id ]
@@ -104,7 +103,6 @@ router.get('/report', async (req, res) => {
       return res.status(400).json({ error: req.t('error_payment_method_required') });
     }
 
-    // Базовий SQL-запит
     const query = `
       SELECT 
         f.create_at,

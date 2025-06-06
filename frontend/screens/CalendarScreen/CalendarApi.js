@@ -144,7 +144,7 @@ export const fetchClients = (system_id, setClients) => {
   };
 
 
-  // Збереження редагування події
+  // Редагування події
   export const editEvent = (system_id, selectedEvent, events, setEvents, fetchEvents, setEditModalVisibleEvent, t) => {
 
       fetch(`${BASE_URL}/calendar/${selectedEvent.event_id}`, {
@@ -174,7 +174,7 @@ export const fetchClients = (system_id, setClients) => {
     .catch((error) => console.error('Error updating event:', error));
 };
 
-
+// Видалення події
 export const deleteEvent = (id, events, setEvents, setEditModalVisibleEvent, t) => {
   fetch(`${BASE_URL}/calendar/${id}`, { method: 'DELETE', headers: { 'Accept-Language': i18n.language } })
         .then((response) => response.json())
