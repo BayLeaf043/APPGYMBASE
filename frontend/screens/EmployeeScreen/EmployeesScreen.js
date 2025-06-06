@@ -125,7 +125,7 @@ export default function EmployeesScreen() {
           {selectedEmployee && (
           <>
           <Text style={styles.modalTitle}>{t('employee_information')}</Text>
-          <Text style={styles.modalText}>{selectedEmployee.name} {selectedEmployee.surname}: {selectedEmployee.role}</Text>
+          <Text style={styles.modalText}>{selectedEmployee.name} {selectedEmployee.surname}: {t(selectedEmployee.role)}</Text>
           <Text style={styles.modalText}>
             {t('status')}:{" "}
             <Text style={{ color: selectedEmployee.status === "active" ? "green" : "red" }}>

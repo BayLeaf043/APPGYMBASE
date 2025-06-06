@@ -180,7 +180,8 @@
   "error_deduct_sessions_failed": "Не вдалося відрахувати сесії.",
   "error_server": "Помилка сервера.",
   "error_fetch_finances_report_failed": "Не вдалося отримати звіт по фінансам.",
-  "error_fetch_certificates_report_failed": "Не вдалося отримати звіт по сертифікатах."
+  "error_fetch_certificates_report_failed": "Не вдалося отримати звіт по сертифікатах.",
+  "error_invalid_date_range": "Неприпустимий діапазон дат. Переконайтеся, що початкова дата не пізніше кінцевої дати."
 
 
 }

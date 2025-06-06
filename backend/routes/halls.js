@@ -1,5 +1,5 @@
 const express = require('express');
-const pool = require('../db'); // Підключаємо пул з'єднань
+const pool = require('../db'); 
 const Joi = require('joi');
 
 const router = express.Router();

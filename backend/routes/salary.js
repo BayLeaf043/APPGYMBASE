@@ -1,6 +1,5 @@
 const express = require('express');
-const pool = require('../db'); 
-const Joi = require('joi'); 
+const pool = require('../db');  
 const router = express.Router();
 // Отримати всі записи 
 router.get('/', async (req, res) => {
@@ -12,6 +11,9 @@ router.get('/', async (req, res) => {
     }
     if (!startDate || !endDate) {
       return res.status(400).json({ error: req.t('error_dates_required') });
+    }
+    if (new Date(startDate) > new Date(endDate)) {
+      return res.status(400).json({ error: req.t('error_invalid_date_range') });
     }
 
     const result = await pool.query(
@@ -40,6 +42,9 @@ router.get('/report', async (req, res) => {
     }
     if (!startDate || !endDate) {
       return res.status(400).json({ error: req.t('error_dates_required') });
+    }
+    if (new Date(startDate) > new Date(endDate)) {
+      return res.status(400).json({ error: req.t('error_invalid_date_range') });
     }
 
     const result = await pool.query(

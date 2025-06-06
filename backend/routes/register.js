@@ -1,8 +1,8 @@
 const express = require('express');
-const { v4: uuidv4 } = require('uuid'); // Для генерації system_id
-const bcrypt = require('bcrypt'); // Для хешування паролів
-const pool = require('../db'); // Підключення до бази даних
-const Joi = require('joi'); // Для валідації полів
+const { v4: uuidv4 } = require('uuid'); 
+const bcrypt = require('bcrypt'); 
+const pool = require('../db'); 
+const Joi = require('joi');
 
 const router = express.Router();
 

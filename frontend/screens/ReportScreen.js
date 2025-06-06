@@ -3,7 +3,6 @@ import { Dimensions } from 'react-native';
 import { TouchableWithoutFeedback, Keyboard} from 'react-native';
 import Svg, { Path } from 'react-native-svg';
 import { useState, useContext } from 'react';
-import { BASE_URL } from '../config';
 import DateTimePickerModal from "react-native-modal-datetime-picker";
 import { Dropdown } from 'react-native-element-dropdown';
 import { useTranslation } from 'react-i18next';

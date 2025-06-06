@@ -104,7 +104,6 @@ router.post('/', async (req, res) => {
         return res.status(400).json({ error: req.t(error.details[0].message) });
       }
 
-      // Перевірка існування категорії
       const clientResult = await pool.query(
         'SELECT client_id FROM clients WHERE client_id = $1',
         [client_id]
@@ -114,7 +113,6 @@ router.post('/', async (req, res) => {
         return res.status(404).json({ error: req.t('error_client_not_found') });
       }
 
-      // Перевірка існування категорії
       const serviceResult = await pool.query(
         'SELECT service_id FROM services WHERE service_id = $1',
         [service_id]
@@ -124,8 +122,6 @@ router.post('/', async (req, res) => {
         return res.status(404).json({ error: req.t('error_service_not_found') });
       }
 
-
-  
       // Додавання нового сертифікату до бази даних
       const result = await pool.query(
         `INSERT INTO certificates (client_id, service_id, 
@@ -165,8 +161,6 @@ router.put('/:certificate_id', async (req, res) => {
         return res.status(400).json({ error: req.t(error.details[0].message) });
       }
   
-  
-      // Оновити послугу
       const result = await pool.query(
         `UPDATE certificates SET 
         valid_to = $1, 

@@ -3,7 +3,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { Dimensions } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import Svg, { Path } from 'react-native-svg';
-import { BASE_URL } from '../config';
+
 
 
 const { height, width } = Dimensions.get('window');

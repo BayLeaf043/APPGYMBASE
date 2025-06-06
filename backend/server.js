@@ -1,4 +1,3 @@
-
 require('dotenv').config();
 const express = require('express');
 const { i18n, middleware } = require('./i18n');
@@ -18,11 +17,8 @@ const financesRoutes = require('./routes/finances');
 const calendarRoutes = require('./routes/calendar');
 const salaryRoutes = require('./routes/salary');
  
-
 const app = express();
 const port = process.env.PORT || 5000;
-
-
 
 app.use(cors());
 app.use(express.json());
@@ -48,6 +44,10 @@ process.on('SIGINT', async () => {
   process.exit(0);
 });
 
-app.listen(port, () => {
-  console.log(`Сервер працює на порту ${port}`);
-});
+if (process.env.NODE_ENV !== 'test') {
+  app.listen(port, () => {
+    console.log(`Сервер працює на порту ${port}`);
+  });
+}
+
+module.exports = app;

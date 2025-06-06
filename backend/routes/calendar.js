@@ -320,7 +320,6 @@ router.post('/deduct-sessions', async (req, res) => {
       for (const deduction of deductions) {
         const { certificate_id, client_id, user_id } = deduction;
 
-        // Перевірка активності сертифіката
         const certificate = await client.query(
           `SELECT * FROM certificates
            WHERE certificate_id = $1
@@ -357,7 +356,6 @@ router.post('/deduct-sessions', async (req, res) => {
           [event_id, client_id]
         );
 
-        // --- Додаємо salary_records для кожного списання ---
   // 1. Дізнаємося category_id, total_price, total_sessions для сертифіката
   const certInfoRes = await client.query(
     `SELECT c.certificate_id, c.total_sessions, c.price, s.category_id
@@ -401,8 +399,6 @@ router.post('/deduct-sessions', async (req, res) => {
          WHERE event_id = $1`,
         [event_id]
       );
-
-      
 
       await client.query('COMMIT');
       res.status(200).json({ message: req.t('success_sessions_deducted') });
