@@ -116,6 +116,40 @@ router.post('/', async (req, res) => {
             return res.status(400).json({ error: req.t(error.details[0].message) });
        }
 
+       // Перевірка на накладання подій для залу
+    const hallConflict = await pool.query(
+      `SELECT * FROM events
+       WHERE hall_id = $1
+         AND event_date = $2
+         AND (
+           (start_time < $3 AND end_time > $3) OR
+           (start_time < $4 AND end_time > $4) OR
+           (start_time >= $3 AND end_time <= $4)
+         )`,
+      [hall_id, event_date, start_time, end_time]
+    );
+
+    if (hallConflict.rows.length > 0) {
+      return res.status(400).json({ error: req.t('error_hall_busy') });
+    }
+
+    // Перевірка на накладання подій для працівника
+    const userConflict = await pool.query(
+      `SELECT * FROM events
+       WHERE user_id = $1
+         AND event_date = $2
+         AND (
+           (start_time < $3 AND end_time > $3) OR
+           (start_time < $4 AND end_time > $4) OR
+           (start_time >= $3 AND end_time <= $4)
+         )`,
+      [user_id, event_date, start_time, end_time]
+    );
+
+    if (userConflict.rows.length > 0) {
+      return res.status(400).json({ error: req.t('error_user_busy') });
+    }
+
         const result = await pool.query(
             `INSERT INTO events (system_id, title, category_id, hall_id, user_id, start_time, end_time, color, comment, event_date)
              VALUES ($1::uuid, $2, $3, $4, $5, $6, $7, $8, $9, $10)

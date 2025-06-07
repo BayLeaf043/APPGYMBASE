@@ -675,7 +675,7 @@ const handlePayment = () => {
               disabled={!selectedEvent.is_active}
             >
               <Text style={styles.datePickerButtonText}>
-                {t('event_start_time')}: {formatTimeToLocal(selectedEvent?.start_time) || t('not_selected')}
+                {t('event_start_time_edit')}: {formatTimeToLocal(selectedEvent?.start_time) || t('not_selected')}
               </Text>
             </TouchableOpacity>
             <DateTimePickerModal
@@ -708,7 +708,7 @@ const handlePayment = () => {
               disabled={!selectedEvent.is_active}
             >
               <Text style={styles.datePickerButtonText}>
-                {t('event_end_time')}: {formatTimeToLocal(selectedEvent?.end_time) || t('not_selected')}
+                {t('event_end_time_edit')}: {formatTimeToLocal(selectedEvent?.end_time) || t('not_selected')}
               </Text>
             </TouchableOpacity>
             <DateTimePickerModal

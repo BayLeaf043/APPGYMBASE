@@ -181,5 +181,7 @@
   "error_fetch_finances_report_failed": "Failed to fetch finances report.",
   "error_fetch_certificates_report_failed": "Failed to fetch certificates report.",
 
-  "error_invalid_date_range": "Invalid date range. The start date must be before the end date."
+  "error_invalid_date_range": "Invalid date range. The start date must be before the end date.",
+  "error_hall_busy": "The hall is busy during the selected time. Please choose a different time or hall.",
+  "error_user_busy": "The employee is busy during the selected time. Please choose a different time or employee."
 }

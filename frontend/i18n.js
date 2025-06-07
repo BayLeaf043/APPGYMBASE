@@ -60,6 +60,9 @@ const resources = {
       client_certificates: 'Сертифікати клієнта',
       no_certificates: 'Сертифікати відсутні',
       close: 'Закрити',
+      pay: 'Оплатити',
+      event_end_time_edit: 'Кінець',
+      event_start_time_edit: 'Початок',
 
       category_added_successfully: 'Категорію успішно додано',
       category_deleted_successfully: 'Категорію успішно видалено',
@@ -276,6 +279,9 @@ const resources = {
       client_certificates: 'Client certificates',
       no_certificates: 'No certificates',
       close: 'Close',
+      pay: 'Pay',
+      event_end_time_edit: 'End',
+      event_start_time_edit: 'Start',
 
       category_added_successfully: 'Category added successfully',
       category_deleted_successfully: 'Category deleted successfully',
